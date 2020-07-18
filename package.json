@@ -13,7 +13,8 @@
     "atom": ">=1.49.0 <2.0.0"
   },
   "dependencies": {
-    "cson-parser": "4.0.4"
+    "cson-parser": "4.0.4",
+    "scoped-property-store": "^0.17.0"
   },
   "devDependencies": {
     "@types/atom": "^1.40.4",

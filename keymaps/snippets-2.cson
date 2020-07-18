@@ -1,0 +1,6 @@
+# Two files meant to ensure that this loads later and therefore takes
+# precedence. IDK if the keyboard manager specifies the order it will
+# read files, but this is just from `snippets` for now.
+'atom-text-editor:not([mini])':
+  'tab': 'snippets:next-tab-stop'
+  'shift-tab': 'snippets:previous-tab-stop'
