@@ -30,6 +30,12 @@ This is a reimagining of the original `snippets` package. It introduces new feat
 - Q: How to handle typing in outer tab stops with inner tab stops? Are they just removed? What if an inner has the same index as the outer?
   - VS Code: Push overriden tab stops to the right, except any leading tab stops (to the left). But it also reorders them, so seems like an oversight.
 
+E.g.,
+
+- `$1$2$3`: typing `foo` in `$2` makes `$1${2:foo}$3`
+- `${1:$2}`: typing `foo` in `$1` makes `${1:foo$2}`
+- `${1:$2a$3b$4}`: typing `foo` in `$1` makes `${1:$2foo$3$4}` (a and b deleted, tab stops before text pushed left, tab stops after text or if no text pushed right).
+
 ### TODO
 - Need a way to detect if undo / redo includes a snippet expansion and which one(s)
   - Mark a checkpoint somehow?
