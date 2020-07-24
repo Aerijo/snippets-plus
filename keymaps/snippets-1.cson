@@ -1,2 +1,3 @@
 'atom-text-editor:not([mini])':
   'tab': 'snippets:expand'
+  'escape': 'snippets:cancel'
