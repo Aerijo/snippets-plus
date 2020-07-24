@@ -4,10 +4,6 @@ os:
   - linux
   - osx
 
-dist: xenial
-services:
-  - xvfb
-
 notifications:
   email:
     on_success: never
