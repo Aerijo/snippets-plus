@@ -81,5 +81,9 @@ describe("Expansions", () => {
     expect(editor.getLastCursor().getBufferPosition()).toEqual([0, 3]);
     expect(gotoPrevious()).toBe(true);
     expect(editor.getLastCursor().getBufferPosition()).toEqual([0, 3]);
+    expect(gotoNext()).toBe(true);
+    expect(editor.getLastCursor().getBufferPosition()).toEqual([0, 6]);
+    expect(gotoNext()).toBe(false);
+    expect(editor.getLastCursor().getBufferPosition()).toEqual([0, 6]);
   });
 });
