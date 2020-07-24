@@ -1,4 +1,4 @@
-language: minimal
+language: objective-c
 
 os:
   - linux
