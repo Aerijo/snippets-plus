@@ -1,6 +1,8 @@
+const path = require("path");
+
 const SnippetsPlus = require("../lib/main");
 const { SnippetParser } = require("../lib/snippet-parser");
-const { TextEditor } = require("atom");
+const { TextEditor, Range, Point } = require("atom");
 
 // These specs work with expansions directly.
 // Put tests for package interaction (loading
@@ -10,9 +12,7 @@ const { TextEditor } = require("atom");
 describe("Expansions", () => {
   let editor;
 
-  async function expand(body) {
-    const prefix = "prefix";
-
+  async function loadSnippet(prefix, body) {
     SnippetsPlus.clearAll();
     await SnippetsPlus.loadTestSnippets({
       "*": {
@@ -22,10 +22,13 @@ describe("Expansions", () => {
         },
       },
     });
+  }
 
-    editor = new TextEditor();
+  async function expand(body, e=new TextEditor()) {
+    const prefix = "prefix";
+    await loadSnippet(prefix, body);
+    editor = e;
     editor.setText(prefix);
-
     SnippetsPlus.expandSnippetsUnderCursors(editor, new SnippetParser());
   }
 
@@ -113,6 +116,66 @@ describe("Expansions", () => {
     expect(editor.getLastCursor().getBufferPosition()).toEqual([0, 6]);
   });
 
+  describe("when snippets contain variables", () => {
+    it("treats unknown variables as tab stops after the proper ones", async () => {
+      await expand("$UNKNOWN foo $1 $UNKNOWN");
+      expect(editor.getText()).toBe("UNKNOWN foo  UNKNOWN");
+      let cursors = editor.getCursorsOrderedByBufferPosition();
+      expect(cursors.length).toBe(1);
+      expect(cursors[0].selection.getBufferRange()).toEqual([[0, 12], [0, 12]]);
+
+      expect(gotoNext()).toBe(true);
+      cursors = editor.getCursorsOrderedByBufferPosition();
+      expect(cursors.length).toBe(1);
+      expect(cursors[0].selection.getBufferRange()).toEqual([[0, 0], [0, 7]]);
+
+      expect(gotoNext()).toBe(true);
+      cursors = editor.getCursorsOrderedByBufferPosition();
+      expect(cursors.length).toBe(1);
+      expect(cursors[0].selection.getBufferRange()).toEqual([[0, 13], [0, 20]]);
+
+      expect(gotoNext()).toBe(true);
+      cursors = editor.getCursorsOrderedByBufferPosition();
+      expect(cursors.length).toBe(1);
+      expect(cursors[0].selection.getBufferRange()).toEqual([[0, 20], [0, 20]]);
+    });
+
+    it("supports $TM_FILENAME", async () => {
+      await expand("$TM_FILENAME");
+      expect(editor.getText()).toBe("untitled");
+      expect(gotoNext()).toBe(false);
+
+      const emptyFile = path.join(__dirname, "fixtures", "empty.js");
+      await expand("$TM_FILENAME", await atom.workspace.open(emptyFile));
+      expect(editor.getText()).toBe("empty.js");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $CLIPBOARD", async () => {
+      atom.clipboard.write("clipboard value");
+      await expand("$CLIPBOARD");
+      expect(editor.getText()).toBe("clipboard value");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $TM_SELECTED_TEXT", async () => {
+      await loadSnippet("prefix", "$TM_SELECTED_TEXT");
+
+      editor = new TextEditor();
+      editor.setText("foo  baz");
+      editor.setSelectedBufferRange([[0, 0], [0, 3]]);
+
+      // debugger
+      SnippetsPlus.expandSnippetWithPrefix(editor, new Range(new Point(0, 4), new Point(0, 4)), "prefix", new SnippetParser());
+
+      expect(editor.getText()).toBe("foo foo baz");
+      expect(gotoNext()).toBe(false);
+      const cursors = editor.getCursorsOrderedByBufferPosition();
+      expect(cursors.length).toBe(1);
+      expect(cursors[0].selection.getBufferRange()).toEqual([[0, 7], [0, 7]]);
+    });
+  });
+
   describe("when typing with an active expansion", async () => {
     function getTabStopsByLocation() {
       const expansion = getActiveExpansion();
@@ -127,6 +190,12 @@ describe("Expansions", () => {
       expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 1], [0, 1]]);
       expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 1], [0, 1]]);
       expect(stops.rootFrame.children[2].instance.getRange()).toEqual([[0, 2], [0, 2]]);
+
+      // TODO: Support treating a cursor as doubled when
+      // - Multiple active tab stops end in same Point
+      // - Change is an insertion at that Point
+      //
+      // And then test by inserting text 'c' -> expect 'a${1:c}${1:c}b'
     });
 
     it("moves tab stop ranges correctly (1)", async () => {
@@ -139,7 +208,7 @@ describe("Expansions", () => {
       expect(stops.rootFrame.children[2].instance.getRange()).toEqual([[0, 6], [0, 6]]);
       expect(stops.rootFrame.children[3].instance.getRange()).toEqual([[0, 9], [0, 9]]);
 
-      editor.setTextInBufferRange([[0, 6], [0, 6]], "a");
+      editor.insertText("a");
 
       expect(stops.rootFrame.children.length).toBe(4);
       expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 3], [0, 3]]);
