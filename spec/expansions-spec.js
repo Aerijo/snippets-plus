@@ -29,6 +29,14 @@ describe("Expansions", () => {
     SnippetsPlus.expandSnippetsUnderCursors(editor, new SnippetParser());
   }
 
+  function getActiveExpansion() {
+    const expansions = SnippetsPlus.getExpansionsForEditor(editor);
+    for (const expansion of expansions) {
+      return expansion;
+    }
+    return undefined;
+  }
+
   function gotoNext() {
     return SnippetsPlus.gotoNextTabStop(editor);
   }
@@ -85,5 +93,31 @@ describe("Expansions", () => {
     expect(editor.getLastCursor().getBufferPosition()).toEqual([0, 6]);
     expect(gotoNext()).toBe(false);
     expect(editor.getLastCursor().getBufferPosition()).toEqual([0, 6]);
+  });
+
+  describe("when typing with an active expansion", async () => {
+    function getTabStopsByLocation() {
+      const expansion = getActiveExpansion();
+      return expansion.tabStopsByLocation;
+    }
+
+    it("moves tab stop ranges correctly (1)", async () => {
+      await expand("foo$2bar$1$3baz$0");
+      const stops = getTabStopsByLocation();
+
+      expect(stops.rootFrame.children.length).toBe(4);
+      expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 3], [0, 3]]);
+      expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 6], [0, 6]]);
+      expect(stops.rootFrame.children[2].instance.getRange()).toEqual([[0, 6], [0, 6]]);
+      expect(stops.rootFrame.children[3].instance.getRange()).toEqual([[0, 9], [0, 9]]);
+
+      editor.setTextInBufferRange([[0, 6], [0, 6]], "a");
+
+      expect(stops.rootFrame.children.length).toBe(4);
+      expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 3], [0, 3]]);
+      expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 6], [0, 7]]);
+      expect(stops.rootFrame.children[2].instance.getRange()).toEqual([[0, 7], [0, 7]]);
+      expect(stops.rootFrame.children[3].instance.getRange()).toEqual([[0, 10], [0, 10]]);
+    });
   });
 });
