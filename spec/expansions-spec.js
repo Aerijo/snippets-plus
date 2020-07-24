@@ -140,6 +140,23 @@ describe("Expansions", () => {
       expect(cursors[0].selection.getBufferRange()).toEqual([[0, 20], [0, 20]]);
     });
 
+    it("supports $CLIPBOARD", async () => {
+      atom.clipboard.write("clipboard value");
+      await expand("$CLIPBOARD");
+      expect(editor.getText()).toBe("clipboard value");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $TM_CURRENT_LINE", async () => {
+      await loadSnippet("prefix", ">$TM_CURRENT_LINE<");
+      editor = new TextEditor();
+      editor.setText("foo prefix");
+      SnippetsPlus.expandSnippetsUnderCursors(editor, new SnippetParser());
+
+      expect(editor.getText()).toBe("foo >foo <");
+      expect(gotoNext()).toBe(false);
+    });
+
     it("supports $TM_FILENAME", async () => {
       await expand("$TM_FILENAME");
       expect(editor.getText()).toBe("untitled");
@@ -151,13 +168,6 @@ describe("Expansions", () => {
       expect(gotoNext()).toBe(false);
     });
 
-    it("supports $CLIPBOARD", async () => {
-      atom.clipboard.write("clipboard value");
-      await expand("$CLIPBOARD");
-      expect(editor.getText()).toBe("clipboard value");
-      expect(gotoNext()).toBe(false);
-    });
-
     it("supports $TM_SELECTED_TEXT", async () => {
       await loadSnippet("prefix", "$TM_SELECTED_TEXT");
 
@@ -165,7 +175,6 @@ describe("Expansions", () => {
       editor.setText("foo  baz");
       editor.setSelectedBufferRange([[0, 0], [0, 3]]);
 
-      // debugger
       SnippetsPlus.expandSnippetWithPrefix(editor, new Range(new Point(0, 4), new Point(0, 4)), "prefix", new SnippetParser());
 
       expect(editor.getText()).toBe("foo foo baz");
