@@ -62,4 +62,24 @@ describe("Expansions", () => {
     expect(gotoNext()).toBe(false);
     expect(editor.getLastCursor().getBufferPosition()).toEqual([0, 6]);
   });
+
+  it("goes back and forth between sequential tab stops", async () => {
+    await expand("foo$1bar$2baz$3qux");
+    expect(editor.getText()).toBe("foobarbazqux");
+    expect(editor.getLastCursor().getBufferPosition()).toEqual([0, 3]);
+    expect(gotoNext()).toBe(true);
+    expect(editor.getLastCursor().getBufferPosition()).toEqual([0, 6]);
+    expect(gotoNext()).toBe(true);
+    expect(editor.getLastCursor().getBufferPosition()).toEqual([0, 9]);
+    expect(gotoPrevious()).toBe(true);
+    expect(editor.getLastCursor().getBufferPosition()).toEqual([0, 6]);
+  });
+
+  it("ignores attempts to go back on the first tab stop", async () => {
+    await expand("foo$1bar");
+    expect(editor.getText()).toBe("foobar");
+    expect(editor.getLastCursor().getBufferPosition()).toEqual([0, 3]);
+    expect(gotoPrevious()).toBe(true);
+    expect(editor.getLastCursor().getBufferPosition()).toEqual([0, 3]);
+  });
 });
