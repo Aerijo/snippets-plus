@@ -4,6 +4,7 @@ os:
   - linux
   - osx
 
+dist: xenial
 services:
   - xvfb
 
