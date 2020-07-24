@@ -1,4 +1,8 @@
-language: objective-c
+language: minimal
+
+os:
+  - linux
+  - osx
 
 notifications:
   email:
