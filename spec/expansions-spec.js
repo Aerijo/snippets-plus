@@ -119,6 +119,16 @@ describe("Expansions", () => {
       return expansion.tabStopsByLocation;
     }
 
+    it("tracks instances that are in the same position", async () => {
+      await expand("a$1$1b");
+      const stops = getTabStopsByLocation();
+
+      expect(stops.rootFrame.children.length).toBe(3);
+      expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 1], [0, 1]]);
+      expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 1], [0, 1]]);
+      expect(stops.rootFrame.children[2].instance.getRange()).toEqual([[0, 2], [0, 2]]);
+    });
+
     it("moves tab stop ranges correctly (1)", async () => {
       await expand("foo$2bar$1$3baz$0");
       const stops = getTabStopsByLocation();
