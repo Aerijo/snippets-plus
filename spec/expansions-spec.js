@@ -53,6 +53,24 @@ describe("Expansions", () => {
     expect(gotoNext()).toBe(false);
   });
 
+  it("inserts and selects the placeholder text", async () => {
+    await expand("a${1:1}b${2:2}c${3:3}d${3:3}");
+    let cursors = editor.getCursorsOrderedByBufferPosition();
+    expect(cursors.length).toBe(1);
+    expect(cursors[0].selection.getBufferRange()).toEqual([[0, 1], [0, 2]]);
+    expect(gotoNext()).toBe(true);
+
+    cursors = editor.getCursorsOrderedByBufferPosition();
+    expect(cursors.length).toBe(1);
+    expect(cursors[0].selection.getBufferRange()).toEqual([[0, 3], [0, 4]]);
+    expect(gotoNext()).toBe(true);
+
+    cursors = editor.getCursorsOrderedByBufferPosition();
+    expect(cursors.length).toBe(2);
+    expect(cursors[0].selection.getBufferRange()).toEqual([[0, 5], [0, 6]]);
+    expect(cursors[1].selection.getBufferRange()).toEqual([[0, 7], [0, 8]]);
+  });
+
   it("does not insert $0 when already present", async () => {
     await expand("foo$0bar");
     expect(editor.getText()).toBe("foobar");
