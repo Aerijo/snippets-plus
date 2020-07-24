@@ -44,3 +44,7 @@ E.g.,
   - Already can detect when undo / redo occurs
 - Allow snippets to contain other snippets directly, such that they resolve as if the snippet body was inserted in place
 - Handle cursor coalescing when multiple instances are on the same point (e.g., `$1$1`, `$1$2$1`)
+
+### Testing
+
+Run `npm test` to run the test suite.
