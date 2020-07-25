@@ -409,14 +409,14 @@ describe("Expansions", () => {
     });
 
     describe("when there are inline modifiers", async () => {
-      it("lowercases the next letter for 'l'", async () => {
-        await expandTransform("/(.{0,3})/\\l$1/g", "FOOBAR");
-        expect(editor.getText()).toBe("fOObAR");
+      it("lowercases the next character for 'l'", async () => {
+        await expandTransform("/(.{0,3})/$1\\l$1/g", "FOO#AR");
+        expect(editor.getText()).toBe("FOOfOO#AR#AR");
       });
 
-      it("uppercases the next letter for 'u'", async () => {
-        await expandTransform("/(.{0,3})/$1\\u$1/g", "foobar");
-        expect(editor.getText()).toBe("fooFoobarBar");
+      it("uppercases the next character for 'u'", async () => {
+        await expandTransform("/(.{0,3})/$1\\u$1/g", "foo#ar");
+        expect(editor.getText()).toBe("fooFoo#ar#ar");
       });
 
       it("lowercases the entire remainder of the match for 'L'", async () => {
@@ -444,6 +444,13 @@ describe("Expansions", () => {
       it("supports /downcase", async () => {
         await expandTransform("/.*/${0:/downcase}/", "ABC");
         expect(editor.getText()).toBe("abc");
+      });
+    });
+
+    describe("some more complicated examples", () => {
+      it("combines inline and named modifiers", async () => {
+        await expandTransform("/.*/\\u${0:/downcase}/", "ABC");
+        expect(editor.getText()).toBe("Abc");
       });
     });
   });
