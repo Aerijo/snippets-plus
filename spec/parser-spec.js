@@ -289,11 +289,11 @@ describe("Snippet Body Parser", () => {
       it("allows inline 'escaped modifiers'", () => {
         expectReplaceMatch("foo\\E\\l\\L\\u\\Ubar", [
           "foo",
-          { modifier: "E" },
-          { modifier: "l" },
-          { modifier: "L" },
-          { modifier: "u" },
-          { modifier: "U" },
+          { inlineModifier: "E" },
+          { inlineModifier: "l" },
+          { inlineModifier: "L" },
+          { inlineModifier: "u" },
+          { inlineModifier: "U" },
           "bar"
         ]);
       });

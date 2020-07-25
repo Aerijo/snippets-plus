@@ -1,4 +1,4 @@
-  const path = require("path");
+const path = require("path");
 
 const SnippetsPlus = require("../lib/main");
 const { SnippetParser } = require("../lib/snippet-parser");
@@ -24,7 +24,7 @@ describe("Expansions", () => {
     });
   }
 
-  async function expand(body, e=new TextEditor()) {
+  async function expand(body, e = new TextEditor()) {
     const prefix = "prefix";
     await loadSnippet(prefix, body);
     editor = e;
@@ -406,6 +406,33 @@ describe("Expansions", () => {
     it("respects the 'y' flag", async () => {
       await expandTransform("/a/A/gy", "aaba");
       expect(editor.getText()).toBe("AAba");
+    });
+
+    describe("when there are inline modifiers", async () => {
+      it("lowercases the next letter for 'l'", async () => {
+        await expandTransform("/(.{0,3})/\\l$1/g", "FOOBAR");
+        expect(editor.getText()).toBe("fOObAR");
+      });
+
+      it("uppercases the next letter for 'u'", async () => {
+        await expandTransform("/(.{0,3})/$1\\u$1/g", "foobar");
+        expect(editor.getText()).toBe("fooFoobarBar");
+      });
+
+      it("lowercases the entire remainder of the match for 'L'", async () => {
+        await expandTransform("/(.{0,3})/$1\\L$1/g", "FOOBAR");
+        expect(editor.getText()).toBe("FOOfooBARbar");
+      });
+
+      it("uppercases the entire remainder of the match for 'U'", async () => {
+        await expandTransform("/(.{0,3})/$1\\U$1/g", "foobar");
+        expect(editor.getText()).toBe("fooFOObarBAR");
+      });
+
+      it("resets the modification state for 'E'", async () => {
+        await expandTransform("/(.{3})/$1\\U$1\\u\\E$1/g", "foo");
+        expect(editor.getText()).toBe("fooFOOfoo");
+      });
     });
   });
 
