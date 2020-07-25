@@ -434,6 +434,18 @@ describe("Expansions", () => {
         expect(editor.getText()).toBe("fooFOOfoo");
       });
     });
+
+    describe("when there are named modifiers", async () => {
+      it("supports /upcase", async () => {
+        await expandTransform("/.*/${0:/upcase}/", "abc");
+        expect(editor.getText()).toBe("ABC");
+      });
+
+      it("supports /downcase", async () => {
+        await expandTransform("/.*/${0:/downcase}/", "ABC");
+        expect(editor.getText()).toBe("abc");
+      });
+    });
   });
 
   describe("when typing with an active expansion", async () => {
