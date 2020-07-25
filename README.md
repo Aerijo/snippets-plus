@@ -31,6 +31,7 @@ This is a reimagining of the original `snippets` package. It introduces new feat
   - As they are just suggestions, it still works when mixing with plain stops.
 - Q: How to handle typing in outer tab stops with inner tab stops? Are they just removed? What if an inner has the same index as the outer?
   - VS Code: Push overriden tab stops to the right, except any leading tab stops (to the left). But it also reorders them, so seems like an oversight.
+- Q: Is it possible for a feedback loop to cause text to keep being added with doubled tab stops (`$1$1` doubles any input, but grows apart so should not have infinite feedback if another person also has a similar snippet).
 E.g.,
 
 - `$1$2$3`: typing `foo` in `$2` makes `$1${2:foo}$3`
@@ -40,7 +41,7 @@ E.g.,
 - Text change handling is mostly independent of cursors
   - Removing cursors may end snippets mode, but the location algorithms should work based on raw buffer changes, without needing to link them to cursors
 
-- Q: Should left-of-placeholder be a property of tab stop instances, to enforce they always be on the left of added content (for empty tab stops). How does this work with non-empty left placholders? Typing to the left of non-empty is well defined (push it right), but if you empty it then it suddenly gets pushed left? 
+- Q: Should left-of-placeholder be a property of tab stop instances, to enforce they always be on the left of added content (for empty tab stops). How does this work with non-empty left placholders? Typing to the left of non-empty is well defined (push it right), but if you empty it then it suddenly gets pushed left?
 
 ### TODO
 - Need a way to detect if undo / redo includes a snippet expansion and which one(s)

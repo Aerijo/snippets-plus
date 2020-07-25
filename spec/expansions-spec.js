@@ -339,6 +339,35 @@ describe("Expansions", () => {
       expect(editor.getText()).toBe("//");
       expect(gotoNext()).toBe(false);
     });
+
+    it("resolves transformations", async () => {
+      atom.clipboard.write("foo");
+      await expand("${CLIPBOARD/./bar/}");
+      expect(editor.getText()).toBe("baroo");
+
+      atom.clipboard.write("foo");
+      await expand("${CLIPBOARD/(.)(.*)/$2$1/}");
+      expect(editor.getText()).toBe("oof");
+    });
+  });
+
+  describe("when tab stops have transformations", () => {
+    async function expandTransform(transform, input) {
+      await expand(`\${1${transform}}`);
+      editor.insertText(input);
+      expect(gotoNext()).toBe(true);
+      expect(gotoNext()).toBe(false);
+    }
+
+    it("resolves text only transformations", async () => {
+      await expandTransform("/.*/bar baz/", "foo");
+      expect(editor.getText()).toBe("bar baz");
+    });
+
+    it("resolves simple backreferences", async () => {
+      await expandTransform("/(.).*(.)/$0$1$2/", "bar");
+      expect(editor.getText()).toBe("barbr");
+    });
   });
 
   describe("when typing with an active expansion", async () => {
