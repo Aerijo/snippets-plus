@@ -28,7 +28,7 @@ describe("Expansions", () => {
     const prefix = "prefix";
     await loadSnippet(prefix, body);
     editor = e;
-    editor.setText(prefix);
+    editor.insertText(prefix);
     SnippetsPlus.expandSnippetsUnderCursors(editor, new SnippetParser());
   }
 
@@ -48,7 +48,7 @@ describe("Expansions", () => {
     return SnippetsPlus.gotoPreviousTabStop(editor);
   }
 
-  it("expands simple snippet", async () => {
+  it("expands a simple snippet", async () => {
     const text = "Hello world";
     await expand(text);
     expect(editor.getText()).toBe(text);
@@ -423,7 +423,7 @@ describe("Expansions", () => {
         expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 3], [0, 3]]);
 
         expect(gotoNext()).toBe(true);
-        debugger
+
         editor.insertText("bar");
 
         expect(stops.rootFrame.children.length).toBe(2);
