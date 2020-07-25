@@ -23,5 +23,12 @@
     "@types/atom": "^1.40.4",
     "@types/node": "^14.0.23",
     "pegjs": "^0.10.0"
+  },
+  "consumedServices": {
+    "status-bar": {
+      "versions": {
+        "^1.0.0": "consumeStatusBar"
+      }
+    }
   }
 }
