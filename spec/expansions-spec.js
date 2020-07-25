@@ -196,6 +196,18 @@ describe("Expansions", () => {
       expect(gotoNext()).toBe(false);
     });
 
+    it("supports $TM_FILEPATH", async () => {
+      await expand("$TM_FILEPATH");
+      expect(editor.getText()).toBe("TM_FILEPATH");
+      expect(gotoNext()).toBe(true);
+      expect(gotoNext()).toBe(false);
+
+      const emptyFile = path.join(__dirname, "fixtures", "empty.js");
+      await expand("$TM_FILEPATH", await atom.workspace.open(emptyFile));
+      expect(editor.getText()).toBe(emptyFile);
+      expect(gotoNext()).toBe(false);
+    });
+
     it("supports $TM_LINE_INDEX", async () => {
       await expand("- $TM_LINE_INDEX\n- $TM_LINE_INDEX");
       expect(editor.getText()).toBe("- 0\n- 0");
@@ -230,6 +242,101 @@ describe("Expansions", () => {
       atom.clipboard.write("clipboard value");
       await expand("$CLIPBOARD");
       expect(editor.getText()).toBe("clipboard value");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $CURRENT_YEAR", async () => {
+      await expand("$CURRENT_YEAR");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $CURRENT_YEAR_SHORT", async () => {
+      await expand("$CURRENT_YEAR_SHORT");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $CURRENT_MONTH", async () => {
+      await expand("$CURRENT_MONTH");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $CURRENT_MONTH_NAME", async () => {
+      await expand("$CURRENT_MONTH_NAME");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $CURRENT_MONTH_NAME_SHORT", async () => {
+      await expand("$CURRENT_MONTH_NAME_SHORT");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $CURRENT_DATE", async () => {
+      await expand("$CURRENT_DATE");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $CURRENT_DAY_NAME", async () => {
+      await expand("$CURRENT_DAY_NAME");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $CURRENT_DAY_NAME_SHORT", async () => {
+      await expand("$CURRENT_DAY_NAME_SHORT");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $CURRENT_HOUR", async () => {
+      await expand("$CURRENT_HOUR");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $CURRENT_MINUTE", async () => {
+      await expand("$CURRENT_MINUTE");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $CURRENT_SECOND", async () => {
+      await expand("$CURRENT_SECOND");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $CURRENT_SECONDS_UNIX", async () => {
+      await expand("$CURRENT_SECONDS_UNIX");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $BLOCK_COMMENT_START and $BLOCK_COMMENT_END", async () => {
+      await Promise.all([
+        atom.packages.activatePackage("language-html"),
+        atom.packages.activatePackage("language-javascript"),
+      ]);
+
+      const emptyHtml = path.join(__dirname, "fixtures", "empty.html");
+      await expand("$BLOCK_COMMENT_START $0 $BLOCK_COMMENT_END", await atom.workspace.open(emptyHtml));
+      expect(editor.getText()).toBe("<!--  -->");
+      expect(gotoNext()).toBe(false);
+
+      const emptyJs = path.join(__dirname, "fixtures", "empty.js");
+      await expand("$BLOCK_COMMENT_START $0 $BLOCK_COMMENT_END", await atom.workspace.open(emptyJs));
+      expect(editor.getText()).toBe("/*  */");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $LINE_COMMENT", async () => {
+      await Promise.all([
+        atom.packages.activatePackage("language-html"),
+        atom.packages.activatePackage("language-javascript"),
+      ]);
+
+      const emptyHtml = path.join(__dirname, "fixtures", "empty.html");
+      await expand("$LINE_COMMENT", await atom.workspace.open(emptyHtml));
+      expect(editor.getText()).toBe("LINE_COMMENT");
+      expect(gotoNext()).toBe(true);
+      expect(gotoNext()).toBe(false);
+
+      const emptyJs = path.join(__dirname, "fixtures", "empty.js");
+      await expand("$LINE_COMMENT", await atom.workspace.open(emptyJs));
+      expect(editor.getText()).toBe("//");
       expect(gotoNext()).toBe(false);
     });
   });
