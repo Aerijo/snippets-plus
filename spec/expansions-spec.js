@@ -381,5 +381,45 @@ describe("Expansions", () => {
       expect(stops.rootFrame.children[2].instance.getRange()).toEqual([[0, 7], [0, 7]]);
       expect(stops.rootFrame.children[3].instance.getRange()).toEqual([[0, 10], [0, 10]]);
     });
+
+    describe("when the tab stops are nested", () => {
+      it("pushes inner tab stops when the outer is active", async () => {
+        await expand("${1:$2}");
+        const stops = getTabStopsByLocation();
+
+        expect(stops.rootFrame.children.length).toBe(2);
+        expect(stops.rootFrame.children[0].children.length).toBe(1);
+        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 0], [0, 0]]);
+        expect(stops.rootFrame.children[0].children[0].instance.getRange()).toEqual([[0, 0], [0, 0]]);
+        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 0], [0, 0]]);
+
+        editor.setText("foo");
+
+        expect(stops.rootFrame.children.length).toBe(2);
+        expect(stops.rootFrame.children[0].children.length).toBe(1);
+        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 0], [0, 3]]);
+        expect(stops.rootFrame.children[0].children[0].instance.getRange()).toEqual([[0, 3], [0, 3]]);
+        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 3], [0, 3]]);
+      });
+
+      it("grows outer tab stops when the inner is active", async () => {
+        await expand("${2:$1}");
+        const stops = getTabStopsByLocation();
+
+        expect(stops.rootFrame.children.length).toBe(2);
+        expect(stops.rootFrame.children[0].children.length).toBe(1);
+        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 0], [0, 0]]);
+        expect(stops.rootFrame.children[0].children[0].instance.getRange()).toEqual([[0, 0], [0, 0]]);
+        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 0], [0, 0]]);
+
+        editor.setText("foo");
+
+        expect(stops.rootFrame.children.length).toBe(2);
+        expect(stops.rootFrame.children[0].children.length).toBe(1);
+        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 0], [0, 3]]);
+        expect(stops.rootFrame.children[0].children[0].instance.getRange()).toEqual([[0, 0], [0, 3]]);
+        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 3], [0, 3]]);
+      });
+    });
   });
 });
