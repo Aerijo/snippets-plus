@@ -140,10 +140,9 @@ describe("Expansions", () => {
       expect(cursors[0].selection.getBufferRange()).toEqual([[0, 20], [0, 20]]);
     });
 
-    it("supports $CLIPBOARD", async () => {
-      atom.clipboard.write("clipboard value");
-      await expand("$CLIPBOARD");
-      expect(editor.getText()).toBe("clipboard value");
+    it("uses the placeholder of unknown variables if possible", async () => {
+      await expand("${UNKNOWN:placeholder}");
+      expect(editor.getText()).toBe("placeholder");
       expect(gotoNext()).toBe(false);
     });
 
@@ -157,6 +156,28 @@ describe("Expansions", () => {
       expect(gotoNext()).toBe(false);
     });
 
+    it("supports $TM_CURRENT_WORD", async () => {
+      await loadSnippet("prefix", ">$TM_CURRENT_WORD<");
+      editor = new TextEditor();
+      editor.setText("foo prefix");
+      SnippetsPlus.expandSnippetsUnderCursors(editor, new SnippetParser());
+
+      expect(editor.getText()).toBe("foo >prefix<");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $TM_DIRECTORY", async () => {
+      await expand("$TM_DIRECTORY");
+      expect(editor.getText()).toBe("TM_DIRECTORY");
+      expect(gotoNext()).toBe(true);
+      expect(gotoNext()).toBe(false);
+
+      const emptyFile = path.join(__dirname, "fixtures", "empty.js");
+      await expand("$TM_DIRECTORY", await atom.workspace.open(emptyFile));
+      expect(editor.getText()).toBe(path.join(__dirname, "fixtures"));
+      expect(gotoNext()).toBe(false);
+    });
+
     it("supports $TM_FILENAME", async () => {
       await expand("$TM_FILENAME");
       expect(editor.getText()).toBe("untitled");
@@ -165,6 +186,25 @@ describe("Expansions", () => {
       const emptyFile = path.join(__dirname, "fixtures", "empty.js");
       await expand("$TM_FILENAME", await atom.workspace.open(emptyFile));
       expect(editor.getText()).toBe("empty.js");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $TM_FILENAME_BASE", async () => {
+      const emptyFile = path.join(__dirname, "fixtures", "empty.js");
+      await expand("$TM_FILENAME_BASE", await atom.workspace.open(emptyFile));
+      expect(editor.getText()).toBe("empty");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $TM_LINE_INDEX", async () => {
+      await expand("- $TM_LINE_INDEX\n- $TM_LINE_INDEX");
+      expect(editor.getText()).toBe("- 0\n- 0");
+      expect(gotoNext()).toBe(false);
+    });
+
+    it("supports $TM_LINE_NUMBER", async () => {
+      await expand("- $TM_LINE_NUMBER\n- $TM_LINE_NUMBER");
+      expect(editor.getText()).toBe("- 1\n- 1");
       expect(gotoNext()).toBe(false);
     });
 
@@ -182,6 +222,15 @@ describe("Expansions", () => {
       const cursors = editor.getCursorsOrderedByBufferPosition();
       expect(cursors.length).toBe(1);
       expect(cursors[0].selection.getBufferRange()).toEqual([[0, 7], [0, 7]]);
+
+      // TODO: When no selected text (selection range is 0 width), fail
+    });
+
+    it("supports $CLIPBOARD", async () => {
+      atom.clipboard.write("clipboard value");
+      await expand("$CLIPBOARD");
+      expect(editor.getText()).toBe("clipboard value");
+      expect(gotoNext()).toBe(false);
     });
   });
 
