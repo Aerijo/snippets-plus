@@ -1,4 +1,4 @@
-const path = require("path");
+  const path = require("path");
 
 const SnippetsPlus = require("../lib/main");
 const { SnippetParser } = require("../lib/snippet-parser");
@@ -383,7 +383,7 @@ describe("Expansions", () => {
     });
 
     describe("when the tab stops are nested", () => {
-      it("pushes inner tab stops when the outer is active", async () => {
+      it("pushes inner tab stops right when the outer is active", async () => {
         await expand("${1:$2}");
         const stops = getTabStopsByLocation();
 
@@ -393,13 +393,45 @@ describe("Expansions", () => {
         expect(stops.rootFrame.children[0].children[0].instance.getRange()).toEqual([[0, 0], [0, 0]]);
         expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 0], [0, 0]]);
 
-        editor.setText("foo");
+        editor.insertText("foo");
 
         expect(stops.rootFrame.children.length).toBe(2);
         expect(stops.rootFrame.children[0].children.length).toBe(1);
         expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 0], [0, 3]]);
         expect(stops.rootFrame.children[0].children[0].instance.getRange()).toEqual([[0, 3], [0, 3]]);
         expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 3], [0, 3]]);
+      });
+
+      it("pushes inner tab stops left if they are before first placeholder content", async () => {
+        await expand("${1:$2a$2}");
+        const stops = getTabStopsByLocation();
+
+        expect(stops.rootFrame.children.length).toBe(2);
+        expect(stops.rootFrame.children[0].children.length).toBe(2);
+        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 0], [0, 1]]);
+        expect(stops.rootFrame.children[0].children[0].instance.getRange()).toEqual([[0, 0], [0, 0]]);
+        expect(stops.rootFrame.children[0].children[1].instance.getRange()).toEqual([[0, 1], [0, 1]]);
+        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 1], [0, 1]]);
+
+        editor.insertText("foo");
+
+        expect(stops.rootFrame.children.length).toBe(2);
+        expect(stops.rootFrame.children[0].children.length).toBe(2);
+        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 0], [0, 3]]);
+        expect(stops.rootFrame.children[0].children[0].instance.getRange()).toEqual([[0, 0], [0, 0]]);
+        expect(stops.rootFrame.children[0].children[1].instance.getRange()).toEqual([[0, 3], [0, 3]]);
+        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 3], [0, 3]]);
+
+        expect(gotoNext()).toBe(true);
+        debugger
+        editor.insertText("bar");
+
+        expect(stops.rootFrame.children.length).toBe(2);
+        expect(stops.rootFrame.children[0].children.length).toBe(2);
+        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 0], [0, 9]]);
+        expect(stops.rootFrame.children[0].children[0].instance.getRange()).toEqual([[0, 0], [0, 3]]);
+        expect(stops.rootFrame.children[0].children[1].instance.getRange()).toEqual([[0, 6], [0, 9]]);
+        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 9], [0, 9]]);
       });
 
       it("grows outer tab stops when the inner is active", async () => {

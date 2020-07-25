@@ -40,12 +40,15 @@ E.g.,
 - Text change handling is mostly independent of cursors
   - Removing cursors may end snippets mode, but the location algorithms should work based on raw buffer changes, without needing to link them to cursors
 
+- Q: Should left-of-placeholder be a property of tab stop instances, to enforce they always be on the left of added content (for empty tab stops). How does this work with non-empty left placholders? Typing to the left of non-empty is well defined (push it right), but if you empty it then it suddenly gets pushed left? 
+
 ### TODO
 - Need a way to detect if undo / redo includes a snippet expansion and which one(s)
   - Mark a checkpoint somehow?
   - Already can detect when undo / redo occurs
 - Allow snippets to contain other snippets directly, such that they resolve as if the snippet body was inserted in place
 - Handle cursor coalescing when multiple instances are on the same point (e.g., `$1$1`, `$1$2$1`)
+
 
 ### Testing
 
