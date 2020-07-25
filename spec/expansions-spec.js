@@ -368,6 +368,45 @@ describe("Expansions", () => {
       await expandTransform("/(.).*(.)/$0$1$2/", "bar");
       expect(editor.getText()).toBe("barbr");
     });
+
+    it("resolves 'if' contents", async () => {
+      await expandTransform("/(abc)|(def)/${1:+if}/", "abc");
+      expect(editor.getText()).toBe("if");
+    });
+
+    it("resolves 'else' contents", async () => {
+      await expandTransform("/(abc)|(def)/${2:-else}/", "abc");
+      expect(editor.getText()).toBe("else");
+    });
+
+    it("resolves 'if-else' contents", async () => {
+      await expandTransform("/(abc)|(def)/${1:?if:else}/", "abc");
+      expect(editor.getText()).toBe("if");
+
+      await expandTransform("/(abc)|(def)/${1:?if:else}/", "def");
+      expect(editor.getText()).toBe("else");
+    });
+
+    it("recursively resolves if / else contents", async () => {
+      await expandTransform("/(abc)|(.*)/${1:?>$1<:$2}/", "abc");
+      expect(editor.getText()).toBe(">abc<");
+
+      await expandTransform("/(abc)|(def)|(.*)/${1:?>$1<:|${2:?second:${3:?third:unknown}}|}/", "foo");
+      expect(editor.getText()).toBe("|third|");
+    });
+
+    it("only applies to all matches if 'g' flag uses", async () => {
+      await expandTransform("/./A/", "foo");
+      expect(editor.getText()).toBe("Aoo");
+
+      await expandTransform("/./A/g", "foo");
+      expect(editor.getText()).toBe("AAA");
+    });
+
+    it("respects the 'y' flag", async () => {
+      await expandTransform("/a/A/gy", "aaba");
+      expect(editor.getText()).toBe("AAba");
+    });
   });
 
   describe("when typing with an active expansion", async () => {
