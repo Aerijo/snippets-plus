@@ -3,6 +3,12 @@
 const cp = require("child_process");
 const path = require("path");
 
+let ATOM_APP_NAME;
+let ATOM_SCRIPT_NAME;
+let ATOM_SCRIPT_PATH;
+let ATOM_PATH;
+let APM_SCRIPT_PATH;
+
 function isLinux() {
   return process.platform === "linux";
 }
@@ -13,6 +19,31 @@ function isMac() {
 
 function isWindows() {
   return process.platform === "win32";
+}
+
+function setScriptNames(channel) {
+  if (isMac()) {
+    if (channel === "stable") {
+      ATOM_APP_NAME = "Atom.app";
+      ATOM_SCRIPT_NAME = "atom.sh";
+    } else {
+      ATOM_APP_NAME = `Atom ${channel}.app`;
+      ATOM_SCRIPT_NAME = `atom-${channel}`;
+    }
+    ATOM_SCRIPT_PATH = `./atom/${ATOM_APP_NAME}/Contents/Resources/app/atom.sh`;
+    ATOM_PATH = "./atom";
+    APM_SCRIPT_PATH = `./atom/${ATOM_APP_NAME}/Contents/Resources/app/apm/node_modules/.bin/apm`
+  } else if (isLinux()) {
+    if (channel === "stable") {
+      ATOM_SCRIPT_PATH = `${process.env.HOME}/atom/usr/bin/atom`;
+      APM_SCRIPT_PATH = `${process.env.HOME}/atom/usr/bin/apm`;
+    } else {
+      ATOM_SCRIPT_PATH = `${process.env.HOME}/atom/usr/bin/atom-${channel}`;
+      APM_SCRIPT_PATH = `${process.env.HOME}/atom/usr/bin/apm-${channel}`;
+    }
+  } else {
+    console.error("Only mac and linux supported");
+  }
 }
 
 function downloadAtom(platform, channel) {
@@ -30,6 +61,7 @@ function downloadAtom(platform, channel) {
   return {
     child: cp.spawnSync("curl", ["-s", "-L", "-H", header, downloadLink, "-o", outFile]),
     out: outFile,
+    channel,
   };
 }
 
@@ -47,8 +79,30 @@ function getAtomPlatform() {
 
 function installAtom(download) {
   console.log(download);
+
+
+
+  if (isLinux()) {
+    cp.execSync("dpkg-deb -x atom-amd64.deb \"${HOME}/atom\"");
+  } else if (isMac()) {
+    cp.execSync("mkdir atom && unzip -q atom.zip -d atom");
+  }
 }
 
-installAtom(downloadAtom(getAtomPlatform(), "stable"));
+function printVersions() {
+  console.log("Atom version:");
+  cp.execSync(`${ATOM_SCRIPT_PATH} --version`);
+
+  console.log("apm version:");
+  cp.execSync(`${APM_SCRIPT_PATH} --version`);
+}
+
+setScriptNames();
+
+const context = installAtom(downloadAtom(getAtomPlatform(), "stable"));
+
+console.log(context);
+
+printVersions();
 
 console.log("done");
