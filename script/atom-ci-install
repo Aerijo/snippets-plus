@@ -66,6 +66,14 @@ else
   export PATH="${HOME}/atom/usr/share/${ATOM_SCRIPT_NAME}/resources/app/apm/bin:${PATH}"
 fi
 
+# Use the system NPM to install the devDependencies
+echo "Using Node version:"
+node --version
+echo "Using NPM version:"
+npm --version
+echo "Installing remaining dependencies..."
+npm install
+
 echo "Running specs..."
 "${ATOM_SCRIPT_PATH}" --test spec
 
