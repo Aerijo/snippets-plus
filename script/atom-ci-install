@@ -1,110 +1,72 @@
-#!/usr/bin/env node
+#!/bin/sh
 
-const cp = require("child_process");
-const path = require("path");
+ATOM_CHANNEL="${ATOM_CHANNEL:=stable}"
 
-let ATOM_APP_NAME;
-let ATOM_SCRIPT_NAME;
-let ATOM_SCRIPT_PATH;
-let ATOM_PATH;
-let APM_SCRIPT_PATH;
+echo "Downloading latest Atom release on the ${ATOM_CHANNEL} channel..."
+if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
+  curl -s -L "https://atom.io/download/mac?channel=${ATOM_CHANNEL}" \
+    -H 'Accept: application/octet-stream' \
+    -o "atom.zip"
+  mkdir atom
+  unzip -q atom.zip -d atom
+  if [ "${ATOM_CHANNEL}" = "stable" ]; then
+    export ATOM_APP_NAME="Atom.app"
+    export ATOM_SCRIPT_NAME="atom.sh"
+    export ATOM_SCRIPT_PATH="./atom/${ATOM_APP_NAME}/Contents/Resources/app/atom.sh"
+  else
+    export ATOM_APP_NAME="Atom ${ATOM_CHANNEL}.app"
+    export ATOM_SCRIPT_NAME="atom-${ATOM_CHANNEL}"
+    export ATOM_SCRIPT_PATH="./atom-${ATOM_CHANNEL}"
+    ln -s "./atom/${ATOM_APP_NAME}/Contents/Resources/app/atom.sh" "${ATOM_SCRIPT_PATH}"
+  fi
+  export ATOM_PATH="./atom"
+  export APM_SCRIPT_PATH="./atom/${ATOM_APP_NAME}/Contents/Resources/app/apm/node_modules/.bin/apm"
+  export NPM_SCRIPT_PATH="./atom/${ATOM_APP_NAME}/Contents/Resources/app/apm/node_modules/.bin/npm"
+  export PATH="${PATH}:${TRAVIS_BUILD_DIR}/atom/${ATOM_APP_NAME}/Contents/Resources/app/apm/node_modules/.bin"
+elif [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+  curl -s -L "https://atom.io/download/deb?channel=${ATOM_CHANNEL}" \
+    -H 'Accept: application/octet-stream' \
+    -o "atom-amd64.deb"
+  dpkg-deb -x atom-amd64.deb "${HOME}/atom"
+  if [ "${ATOM_CHANNEL}" = "stable" ]; then
+    export ATOM_SCRIPT_NAME="atom"
+    export APM_SCRIPT_NAME="apm"
+  else
+    export ATOM_SCRIPT_NAME="atom-${ATOM_CHANNEL}"
+    export APM_SCRIPT_NAME="apm-${ATOM_CHANNEL}"
+  fi
+  export ATOM_SCRIPT_PATH="${HOME}/atom/usr/bin/${ATOM_SCRIPT_NAME}"
+  export APM_SCRIPT_PATH="${HOME}/atom/usr/bin/${APM_SCRIPT_NAME}"
+  export NPM_SCRIPT_PATH="${HOME}/atom/usr/share/${ATOM_SCRIPT_NAME}/resources/app/apm/node_modules/.bin/npm"
+  export PATH="${PATH}:${HOME}/atom/usr/bin"
+else
+  echo "Unknown CI environment, exiting!"
+  exit 1
+fi
 
-function isLinux() {
-  return process.platform === "linux";
-}
+echo "Using Atom version:"
+"${ATOM_SCRIPT_PATH}" -v
+echo "Using APM version:"
+"${APM_SCRIPT_PATH}" -v
 
-function isMac() {
-  return process.platform === "darwin";
-}
+echo "Downloading package dependencies..."
 
-function isWindows() {
-  return process.platform === "win32";
-}
+if [ -f "package-lock.json" ]; then
+  "${APM_SCRIPT_PATH}" ci
+else
+  echo "Warning: package-lock.json not found; running apm install instead of apm ci"
+  "${APM_SCRIPT_PATH}" install
+  "${APM_SCRIPT_PATH}" clean
+fi
 
-function setScriptNames(channel) {
-  if (isMac()) {
-    if (channel === "stable") {
-      ATOM_APP_NAME = "Atom.app";
-      ATOM_SCRIPT_NAME = "atom.sh";
-    } else {
-      ATOM_APP_NAME = `Atom ${channel}.app`;
-      ATOM_SCRIPT_NAME = `atom-${channel}`;
-    }
-    ATOM_SCRIPT_PATH = `./atom/${ATOM_APP_NAME}/Contents/Resources/app/atom.sh`;
-    ATOM_PATH = "./atom";
-    APM_SCRIPT_PATH = `./atom/${ATOM_APP_NAME}/Contents/Resources/app/apm/node_modules/.bin/apm`
-  } else if (isLinux()) {
-    if (channel === "stable") {
-      ATOM_SCRIPT_PATH = `${process.env.HOME}/atom/usr/bin/atom`;
-      APM_SCRIPT_PATH = `${process.env.HOME}/atom/usr/bin/apm`;
-    } else {
-      ATOM_SCRIPT_PATH = `${process.env.HOME}/atom/usr/bin/atom-${channel}`;
-      APM_SCRIPT_PATH = `${process.env.HOME}/atom/usr/bin/apm-${channel}`;
-    }
-  } else {
-    console.error("Only mac and linux supported");
-  }
-}
+# Override the PATH to put the Node bundled with APM first
+if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
+  export PATH="./atom/${ATOM_APP_NAME}/Contents/Resources/app/apm/bin:${PATH}"
+else
+  export PATH="${HOME}/atom/usr/share/${ATOM_SCRIPT_NAME}/resources/app/apm/bin:${PATH}"
+fi
 
-function downloadAtom(platform, channel) {
-  const downloadLink = `https://atom.io/download/${platform}?channel=${channel}`;
-  const header = "Accept: application/octet-stream";
+echo "Running specs..."
+"${ATOM_SCRIPT_PATH}" --test spec
 
-  let outFile;
-  if (isLinux()) {
-    outFile = "atom-amd64.deb";
-  } else {
-    outFile = "atom.zip";
-  }
-
-  console.log(`Downloading Atom from ${downloadLink} to file ${outFile}`);
-  return {
-    child: cp.spawnSync("curl", ["-s", "-L", "-H", header, downloadLink, "-o", outFile]),
-    out: outFile,
-    channel,
-  };
-}
-
-function getAtomPlatform() {
-  if (isLinux()) {
-    return "deb";
-  } else if (isMac()) {
-    return "mac";
-  } else if (isWindows()) {
-    return "windows_zip";
-  } else {
-    throw new Error("Unknown platform");
-  }
-}
-
-function installAtom(download) {
-  console.log(download);
-
-
-
-  if (isLinux()) {
-    cp.execSync("dpkg-deb -x atom-amd64.deb \"${HOME}/atom\"");
-  } else if (isMac()) {
-    cp.execSync("mkdir atom && unzip -q atom.zip -d atom");
-  }
-}
-
-function printVersions() {
-  console.log("Atom version:");
-  cp.execSync(`${ATOM_SCRIPT_PATH} --version`);
-
-  console.log("apm version:");
-  cp.execSync(`${APM_SCRIPT_PATH} --version`);
-}
-
-const channel = "stable";
-
-setScriptNames(channel);
-
-const context = installAtom(downloadAtom(getAtomPlatform(), channel));
-
-console.log(context);
-
-printVersions();
-
-console.log("done");
+exit
