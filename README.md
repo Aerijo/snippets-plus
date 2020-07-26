@@ -126,6 +126,10 @@ Your file may have any number of these selectors. Note that because of how CSON 
     body: 'my next snippet'
 ```
 
+- The `name` is a unique identifier for the snippet.
+- The `prefix` is a string that must be directly behind the cursor for this snippet to be expanded. It must be a single line, and no longer than 50 characters.
+- The body is what the snippet expands into, parsed as per the above _Syntax_ section.
+
 You can also add `autocomplete-plus` attributes like `description` and `rightLabel`. They are not used by this package, but can make the autocomplete popup more descriptive.
 
 Until now this is all the same as for the original snippets package. But this package supports a shorthand structure for when you don't care about naming snippets. If you don't declare a `prefix` key, then the snippet name will be used instead. And if the snippet declaration is a string, then it will be used as the body. So the following are all equivalent
@@ -152,19 +156,26 @@ As with the original package, user snippets are watched and automatically update
 
 <!-- TODO: Add support for a "session" level snippet, which is defined in a prompt and (optionally?) destroyed when the editor is closed -->
 
-## Notes:
+### Using
 
-### Design
+To expand a snippet, type it's prefix and run the `Snippets: Expand` command. This command is assigned the shortcut <kbd>tab</kbd> by default.
 
-- Main package:
-  - Tracks available snippets
-- Per editor:
-  - Picks and tracks active snippets
-  - Tracks undo / redo when
+The selection of snippet to expand is follows:
+- Get set of snippets that can be expanded based on the cursor scope
+- Snippets with more specific selectors override ones that have the same prefix and are more general
+- User snippets override package snippets, and community package snippets override core package snippets
+- The snippet with the longest prefix that is completely matched by the text behind the cursor wins.
 
-### General
+So if we had candidate prefixes `log` and `conlog`, then for the following text before the cursor:
+  - `conlogq`: no snippet matches
+  - `conlog`: picks the `conlog` snippet
+  - `onlog`: picks the `log` snippet
+  - `og`: no snippet matches
 
-- Snippet expansions in different editors are independent
+To goto the next tab stop, run `Snippets: Next Tab Stop` (again, <kbd>tab</kbd> by default) and to goto the previous run `Snippets: Previous Tab Stop` (<kbd>shift-tab</kbd> by default).
+
+
+## Dev fluff
 
 ### Tab stop semantics:
 
@@ -193,6 +204,8 @@ As with the original package, user snippets are watched and automatically update
   - Removing cursors may end snippets mode, but the location algorithms should work based on raw buffer changes, without needing to link them to cursors
 
 - Q: Should left-of-placeholder be a property of tab stop instances, to enforce they always be on the left of added content (for empty tab stops). How does this work with non-empty left placholders? Typing to the left of non-empty is well defined (push it right), but if you empty it then it suddenly gets pushed left?
+- Teletype should be using markers for other users, so we can exit snippet mode when a cursor goes out of tab stop range.
+  - Could expose invalidation strategy as a config option too.
 
 ### TODO
 
@@ -204,4 +217,4 @@ As with the original package, user snippets are watched and automatically update
 
 ### Testing
 
-Run `npm test` to run the test suite.
+Run `atom test .` to run the test suite. Replace `atom` with `atom-beta` and `atom-nightly` as appropriate.
