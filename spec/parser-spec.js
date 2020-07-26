@@ -316,7 +316,16 @@ describe("Snippet Body Parser", () => {
           expectReplaceMatch("${1:/upcase}", [
             {
               backreference: 1,
-              modifier: "upcase",
+              modifier: ["upcase"],
+            }
+          ]);
+        });
+
+        it("parses formats with chained modifiers", () => {
+          expectReplaceMatch("${1:/upcase/downcase/g}", [
+            {
+              backreference: 1,
+              modifier: ["upcase", "downcase", "g"],
             }
           ]);
         });
