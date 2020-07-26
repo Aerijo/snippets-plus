@@ -4,6 +4,103 @@
 
 This is a reimagining of the original `snippets` package. It introduces new features such as variables and advanced formatting.
 
+## Features
+Snippets as in the `snippets` package, plus:
+- Status bar indicator for when in snippets mode
+- Command to leave snippets mode
+- Variables and named transformations
+- Conditional transformation replacements
+
+## Snippets
+
+### Syntax
+
+Snippet syntax starts off simple. Anything except `$` and `\` are plain text and will be inserted directly. The cursor will automatically be placed at the end of the inserted text.
+
+  - NOTE: If you want to use `$` or `\` literally, a good rule of thumb is to escape them as `\$` and `\\`. This will prevent future syntax extensions from breaking your snippets. When you write a snippet in a `.cson` or `.json` file, you will need to write `\` as `\\`, so to get a literal `$` you would end up writing `\\$`. <!-- TODO: Add strict mode, and note it is enforced in strict mode -->
+
+Next comes tab stops. These mark positions to place the cursor, and can be cycled through back and forth on command. The simple way to do these is `$n`, where `n` is some non-negative integer value. E.g.,
+```
+\\begin{$1}$2
+  $0
+\\end{$1}
+```
+will insert the text (without the `$n` values), and place the cursor where the `$1` tab stops are (it will add as many cursors as needed). You can then start typing, and what you type will be written in both the `begin` and `end` sections. When you goto the next tab stop (shortcut is <kbd>tab</kbd> by default) it will destroy those cursors and add one where the `$2` stop is. If you goto the previous tab stop (shortcut is <kbd>shift-tab</kbd> by default) it will destroy the cursor on `$2` and add back the cursors on `$1`, with them selecting any text you wrote there previously. Once you move past the highest tab stop number, it will end the snippet mode. By default it places a cursor after the snippet text, but you can control where the cursor ends up using the special `$0` tab stop. These work like regular tab stops, except once you reach them you cannot go back to older tab stops because the snippet has ended.
+
+### Defining snippets
+
+Snippets can be provided by packages. Any `.cson` or `.json` file in a top level `snippets` directory will be searched. Users can also provide snippets directly through the `~/.atom/snippets.cson` file.
+
+The structure is as follows:
+```coffee
+source1:
+  name1:
+    prefix: "foo"
+    body: "Hello world"
+  name2:
+    prefix: "bar"
+    body: "second snippet"
+
+source2:
+  name1:
+    prefix: "foo"
+    body: "a snippet for a different scope"
+```
+The top level keys are _scope selectors_. These control what parts of a file the snippet can be expanded in. For example,
+  - `.source.js` allows the snippet to be expanded in all JavaScript files
+  - `.source.js,.source.ts` allows the snippet to be used in JS and TS files
+  - `.source.js .string` only allows the snippet to expand in JS strings
+  - `.string` allows the snippet in any string of any language
+
+Your file may have any number of these selectors. Note that because of how CSON and JSON work, all sibling keys must be unique. If you want to add multiple snippets to the same scope, make sure to do it under the same key. E.g.,
+```coffee
+# No good, two keys on the same object have the same value
+".source.js":
+  name1:
+    prefix: 'snippet1'
+    body: 'my first snippet'
+
+".source.js":
+  name2:
+    prefix: 'snippet2'
+    body: 'my next snippet'
+
+###############
+# Fixed
+".source.js":
+  name1:
+    prefix: 'snippet1'
+    body: 'my first snippet'
+
+  name2:
+    prefix: 'snippet2'
+    body: 'my next snippet'
+```
+You can also add `autocomplete-plus` attributes like `description` and `rightLabel`. They are not used by this package, but can make the autocomplete popup more descriptive.
+
+Until now this is all the same as for the original snippets package. But this package supports a shorthand structure for when you don't care about naming snippets. If you don't declare a `prefix` key, then the snippet name will be used instead. And if the snippet declaration is a string, then it will be used as the body. So the following are all equivalent
+```coffee
+".source.js":
+  log:
+    prefix: "log",
+    body: "console.log($1)$0"
+
+################
+
+".source.js":
+  log:
+    body: "console.log($1)$0"
+
+################
+
+".source.js":
+  log: "console.log($1)$0"
+```
+
+As with the original package, user snippets are watched and automatically updated when the file changes.
+
+<!-- TODO: Add support for a "session" level snippet, which is defined in a prompt and (optionally?) destroyed when the editor is closed -->
+
 ## Notes:
 
 ### Design
