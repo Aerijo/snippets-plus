@@ -72,6 +72,8 @@ There are also a set of inline modifiers that control how following text is tran
 
 * NOTE: These modifiers are applied after the named transformations. So `\U${n:/downcase}` will still be in all caps.
 
+There is also support for choice items of the form `${n|one,two,three|}`, which are meant to be offered in a list, but I don't have an easy way of displaying this list for now (it needs to cooperate with the autocomplete+ list).
+
 ### Defining snippets
 
 Snippets can be provided by packages. Any `.cson` or `.json` file in a top level `snippets` directory will be searched. Users can also provide snippets directly through the `~/.atom/snippets.cson` file.
@@ -218,6 +220,8 @@ To goto the next tab stop, run `Snippets: Next Tab Stop` (again, <kbd>tab</kbd> 
   - Mark a checkpoint somehow?
   - Already can detect when undo / redo occurs
 - Allow snippets to contain other snippets directly, such that they resolve as if the snippet body was inserted in place
+- Allow expansion of snippets within snippets
+  - Just need to add them to the groups and locations list
 - Handle cursor coalescing when multiple instances are on the same point (e.g., `$1$1`, `$1$2$1`)
 
 ### Testing
