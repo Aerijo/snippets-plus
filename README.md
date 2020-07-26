@@ -31,6 +31,45 @@ Next comes tab stops. These mark positions to place the cursor, and can be cycle
 
 will insert the text (without the `$n` values), and place the cursor where the `$1` tab stops are (it will add as many cursors as needed). You can then start typing, and what you type will be written in both the `begin` and `end` sections. When you goto the next tab stop (shortcut is <kbd>tab</kbd> by default) it will destroy those cursors and add one where the `$2` stop is. If you goto the previous tab stop (shortcut is <kbd>shift-tab</kbd> by default) it will destroy the cursor on `$2` and add back the cursors on `$1`, with them selecting any text you wrote there previously. Once you move past the highest tab stop number, it will end the snippet mode. By default it places a cursor after the snippet text, but you can control where the cursor ends up using the special `$0` tab stop. These work like regular tab stops, except once you reach them you cannot go back to older tab stops because the snippet has ended.
 
+If you want to add a tab stop before some plain text numbers, use the `${n}` variant.
+
+If you want to have some default text at a tab stop, you can use the `${n:placeholder}` syntax. This behaves the same as `$n`, except the `placeholder` text is displayed, and will be selected when arriving at the tab stop. The placeholder value can be arbitrary; you can even nest tab stops like `${2:foo$1}`, which will let you type at `$1` and then select that and `foo` when arriving at `$2`.
+
+  - NOTE: The semantics of nested same-tab stops (`${1:$1}`) and adjacent tab stops (`$1$1`) are still undecided and subject to change.
+
+If you want to compute a value at the time of inserting a snippet, you can do so with _variables_. These are represented with `$name`, where `name` is an ASCII string of letters, numbers, and underscores. A name may not start with a number. A variable is resolved based on name, with the following being provided by default:
+- `TM_FILENAME`: The name of the current file (`untitled` if not saved to disk)
+- `CURRENT_YEAR`: The current year. E.g., `2020`.
+- `CLIPBOARD`: The contents of the clipboard.
+<!-- TODO: List them all -->
+
+Variable names are case sensitive.
+
+As with tab stops, variables can have placeholder text using `${name:placeholder}` syntax. The placeholder is used if the variable is not defined. If there is no placeholder, and the variable is undefined, then the variable is converted into a tab stop with the variable name as a placeholder.
+
+Both tab stops and variables can also be transformed. The syntax for this is `${n(ame)/find/replace/flags}`. Variable transformations are resolved on expansion, tab stop transformations are resolved when leaving them. Note that this means the `$0` tab stop cannot be transformed, as snippets mode ends when arriving to it.
+
+The `find` section is a JS [regular expression](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions). The `flags` section are flags that will be applied to the regex. E.g., use `g` to replace all matches of the pattern in the input, not just the first.
+
+The `replace` section is a mix of plain text and special `format`s. Plain text is inserted directly. Currently there is no way to use variables or named capture groups in the `replace` section.
+
+A format looks like a tab stop, e.g., `$1`, except the number refers to capture groups in the `find` regex. If the capture group has a value it will be inserted as plain text. Formats also have several special features:
+  - `${n:/transform}`: Written this way, where `transform` is a name like a variable, the value of the capture group will be transformed based on `transform` before being written out. Builtin values for transform are `upcase` and `downcase`. So `${1:/upcase}` will return the uppercase version of whatever capture group 1 matched. These names are different to variable names, and are also case sensitive.
+  - `${n:+ifContent}`: If the `n`th capture group matched something (even if it's the empty string) then evaluate the `ifContent` as if it was there all along.
+  - `${n:-elseContent}`: If the `n`th capture group did not match anything, evaluate the `elseContent`.
+  - `${n:?ifContent:elseContent}`: Shorthand for the above two conditionals.
+  - `${n:elseContent}`: (deprecated) Alternative to the `${n:-...}` form. Present for compatibility with other editors, but should not be used because the first character after the `:` may cause it to be parsed as something else (e.g., if it was a `+` it would turn into an if-conditional).
+
+There are also a set of inline modifiers that control how following text is transformed.
+  - `\u`: Uppercase the next character
+  - `\U`: Uppercase all following characters
+  - `\l`: Lowercase the next character
+  - `\L`: Lowercase all following characters
+  - `\E`: Clear any active modifiers
+
+
+  - NOTE: These modifiers are applied after the named transformations. So `\U${n:/downcase}` will still be in all caps.
+
 ### Defining snippets
 
 Snippets can be provided by packages. Any `.cson` or `.json` file in a top level `snippets` directory will be searched. Users can also provide snippets directly through the `~/.atom/snippets.cson` file.
