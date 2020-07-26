@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const cp = require("child_process");
+const path = require("path");
 
 function isLinux() {
   return process.platform === "linux";
@@ -14,31 +15,22 @@ function isWindows() {
   return process.platform === "win32";
 }
 
-function installAtom(platform, channel) {
-  return new Promise((resolve, reject) => {
-    const downloadLink = `https://atom.io/download/${platform}?channel=${channel}`;
-    const header = "Accept: application/octet-stream";
+function downloadAtom(platform, channel) {
+  const downloadLink = `https://atom.io/download/${platform}?channel=${channel}`;
+  const header = "Accept: application/octet-stream";
 
-    let outFile;
-    if (isLinux()) {
-      outFile = "atom-amd64.deb";
-    } else {
-      outFile = "atom.zip";
-    }
+  let outFile;
+  if (isLinux()) {
+    outFile = "atom-amd64.deb";
+  } else {
+    outFile = "atom.zip";
+  }
 
-    console.log(`Downloading Atom from ${downloadLink} to file ${outFile}`);
-    const download = cp.spawn("curl", ["-s", "-L", "-H", header, downloadLink, "-o", outFile]);
-
-    download.on("exit", (code) => {
-      if (code) {
-        console.log(`Rejected: ${code}`);
-        reject(code);
-      } else {
-        console.log(`Downloaded: ${code}`)
-        resolve(code);
-      }
-    });
-  });
+  console.log(`Downloading Atom from ${downloadLink} to file ${outFile}`);
+  return {
+    child: cp.spawnSync("curl", ["-s", "-L", "-H", header, downloadLink, "-o", outFile]),
+    out: outFile,
+  };
 }
 
 function getAtomPlatform() {
@@ -53,5 +45,10 @@ function getAtomPlatform() {
   }
 }
 
+function installAtom(download) {
+  console.log(download);
+}
 
-installAtom(getAtomPlatform(), "stable").then(() => { console.log("done"); });
+installAtom(downloadAtom(getAtomPlatform(), "stable"));
+
+console.log("done");
