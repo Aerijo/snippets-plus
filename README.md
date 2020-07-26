@@ -161,19 +161,20 @@ As with the original package, user snippets are watched and automatically update
 To expand a snippet, type it's prefix and run the `Snippets: Expand` command. This command is assigned the shortcut <kbd>tab</kbd> by default.
 
 The selection of snippet to expand is follows:
+
 - Get set of snippets that can be expanded based on the cursor scope
 - Snippets with more specific selectors override ones that have the same prefix and are more general
 - User snippets override package snippets, and community package snippets override core package snippets
 - The snippet with the longest prefix that is completely matched by the text behind the cursor wins.
 
 So if we had candidate prefixes `log` and `conlog`, then for the following text before the cursor:
-  - `conlogq`: no snippet matches
-  - `conlog`: picks the `conlog` snippet
-  - `onlog`: picks the `log` snippet
-  - `og`: no snippet matches
+
+- `conlogq`: no snippet matches
+- `conlog`: picks the `conlog` snippet
+- `onlog`: picks the `log` snippet
+- `og`: no snippet matches
 
 To goto the next tab stop, run `Snippets: Next Tab Stop` (again, <kbd>tab</kbd> by default) and to goto the previous run `Snippets: Previous Tab Stop` (<kbd>shift-tab</kbd> by default).
-
 
 ## Dev fluff
 
