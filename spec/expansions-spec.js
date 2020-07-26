@@ -16,7 +16,7 @@ describe("Expansions", () => {
     SnippetsPlus.clearAll();
     await SnippetsPlus.loadTestSnippets({
       "*": {
-        "test": {
+        test: {
           prefix,
           body,
         },
@@ -52,7 +52,10 @@ describe("Expansions", () => {
     const text = "Hello world";
     await expand(text);
     expect(editor.getText()).toBe(text);
-    expect(editor.getLastCursor().getBufferPosition()).toEqual([0, text.length]);
+    expect(editor.getLastCursor().getBufferPosition()).toEqual([
+      0,
+      text.length,
+    ]);
     expect(gotoNext()).toBe(false);
   });
 
@@ -60,18 +63,30 @@ describe("Expansions", () => {
     await expand("a${1:1}b${2:2}c${3:3}d${3:3}");
     let cursors = editor.getCursorsOrderedByBufferPosition();
     expect(cursors.length).toBe(1);
-    expect(cursors[0].selection.getBufferRange()).toEqual([[0, 1], [0, 2]]);
+    expect(cursors[0].selection.getBufferRange()).toEqual([
+      [0, 1],
+      [0, 2],
+    ]);
     expect(gotoNext()).toBe(true);
 
     cursors = editor.getCursorsOrderedByBufferPosition();
     expect(cursors.length).toBe(1);
-    expect(cursors[0].selection.getBufferRange()).toEqual([[0, 3], [0, 4]]);
+    expect(cursors[0].selection.getBufferRange()).toEqual([
+      [0, 3],
+      [0, 4],
+    ]);
     expect(gotoNext()).toBe(true);
 
     cursors = editor.getCursorsOrderedByBufferPosition();
     expect(cursors.length).toBe(2);
-    expect(cursors[0].selection.getBufferRange()).toEqual([[0, 5], [0, 6]]);
-    expect(cursors[1].selection.getBufferRange()).toEqual([[0, 7], [0, 8]]);
+    expect(cursors[0].selection.getBufferRange()).toEqual([
+      [0, 5],
+      [0, 6],
+    ]);
+    expect(cursors[1].selection.getBufferRange()).toEqual([
+      [0, 7],
+      [0, 8],
+    ]);
   });
 
   it("does not insert $0 when already present", async () => {
@@ -122,22 +137,34 @@ describe("Expansions", () => {
       expect(editor.getText()).toBe("UNKNOWN foo  UNKNOWN");
       let cursors = editor.getCursorsOrderedByBufferPosition();
       expect(cursors.length).toBe(1);
-      expect(cursors[0].selection.getBufferRange()).toEqual([[0, 12], [0, 12]]);
+      expect(cursors[0].selection.getBufferRange()).toEqual([
+        [0, 12],
+        [0, 12],
+      ]);
 
       expect(gotoNext()).toBe(true);
       cursors = editor.getCursorsOrderedByBufferPosition();
       expect(cursors.length).toBe(1);
-      expect(cursors[0].selection.getBufferRange()).toEqual([[0, 0], [0, 7]]);
+      expect(cursors[0].selection.getBufferRange()).toEqual([
+        [0, 0],
+        [0, 7],
+      ]);
 
       expect(gotoNext()).toBe(true);
       cursors = editor.getCursorsOrderedByBufferPosition();
       expect(cursors.length).toBe(1);
-      expect(cursors[0].selection.getBufferRange()).toEqual([[0, 13], [0, 20]]);
+      expect(cursors[0].selection.getBufferRange()).toEqual([
+        [0, 13],
+        [0, 20],
+      ]);
 
       expect(gotoNext()).toBe(true);
       cursors = editor.getCursorsOrderedByBufferPosition();
       expect(cursors.length).toBe(1);
-      expect(cursors[0].selection.getBufferRange()).toEqual([[0, 20], [0, 20]]);
+      expect(cursors[0].selection.getBufferRange()).toEqual([
+        [0, 20],
+        [0, 20],
+      ]);
     });
 
     it("uses the placeholder of unknown variables if possible", async () => {
@@ -225,15 +252,26 @@ describe("Expansions", () => {
 
       editor = new TextEditor();
       editor.setText("foo  baz");
-      editor.setSelectedBufferRange([[0, 0], [0, 3]]);
+      editor.setSelectedBufferRange([
+        [0, 0],
+        [0, 3],
+      ]);
 
-      SnippetsPlus.expandSnippetWithPrefix(editor, new Range(new Point(0, 4), new Point(0, 4)), "prefix", new SnippetParser());
+      SnippetsPlus.expandSnippetWithPrefix(
+        editor,
+        new Range(new Point(0, 4), new Point(0, 4)),
+        "prefix",
+        new SnippetParser()
+      );
 
       expect(editor.getText()).toBe("foo foo baz");
       expect(gotoNext()).toBe(false);
       const cursors = editor.getCursorsOrderedByBufferPosition();
       expect(cursors.length).toBe(1);
-      expect(cursors[0].selection.getBufferRange()).toEqual([[0, 7], [0, 7]]);
+      expect(cursors[0].selection.getBufferRange()).toEqual([
+        [0, 7],
+        [0, 7],
+      ]);
 
       // TODO: When no selected text (selection range is 0 width), fail
     });
@@ -312,12 +350,18 @@ describe("Expansions", () => {
       ]);
 
       const emptyHtml = path.join(__dirname, "fixtures", "empty.html");
-      await expand("$BLOCK_COMMENT_START $0 $BLOCK_COMMENT_END", await atom.workspace.open(emptyHtml));
+      await expand(
+        "$BLOCK_COMMENT_START $0 $BLOCK_COMMENT_END",
+        await atom.workspace.open(emptyHtml)
+      );
       expect(editor.getText()).toBe("<!--  -->");
       expect(gotoNext()).toBe(false);
 
       const emptyJs = path.join(__dirname, "fixtures", "empty.js");
-      await expand("$BLOCK_COMMENT_START $0 $BLOCK_COMMENT_END", await atom.workspace.open(emptyJs));
+      await expand(
+        "$BLOCK_COMMENT_START $0 $BLOCK_COMMENT_END",
+        await atom.workspace.open(emptyJs)
+      );
       expect(editor.getText()).toBe("/*  */");
       expect(gotoNext()).toBe(false);
     });
@@ -391,7 +435,10 @@ describe("Expansions", () => {
       await expandTransform("/(abc)|(.*)/${1:?>$1<:$2}/", "abc");
       expect(editor.getText()).toBe(">abc<");
 
-      await expandTransform("/(abc)|(def)|(.*)/${1:?>$1<:|${2:?second:${3:?third:unknown}}|}/", "foo");
+      await expandTransform(
+        "/(abc)|(def)|(.*)/${1:?>$1<:|${2:?second:${3:?third:unknown}}|}/",
+        "foo"
+      );
       expect(editor.getText()).toBe("|third|");
     });
 
@@ -466,9 +513,18 @@ describe("Expansions", () => {
       const stops = getTabStopsByLocation();
 
       expect(stops.rootFrame.children.length).toBe(3);
-      expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 1], [0, 1]]);
-      expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 1], [0, 1]]);
-      expect(stops.rootFrame.children[2].instance.getRange()).toEqual([[0, 2], [0, 2]]);
+      expect(stops.rootFrame.children[0].instance.getRange()).toEqual([
+        [0, 1],
+        [0, 1],
+      ]);
+      expect(stops.rootFrame.children[1].instance.getRange()).toEqual([
+        [0, 1],
+        [0, 1],
+      ]);
+      expect(stops.rootFrame.children[2].instance.getRange()).toEqual([
+        [0, 2],
+        [0, 2],
+      ]);
 
       // TODO: Support treating a cursor as doubled when
       // - Multiple active tab stops end in same Point
@@ -482,18 +538,42 @@ describe("Expansions", () => {
       const stops = getTabStopsByLocation();
 
       expect(stops.rootFrame.children.length).toBe(4);
-      expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 3], [0, 3]]);
-      expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 6], [0, 6]]);
-      expect(stops.rootFrame.children[2].instance.getRange()).toEqual([[0, 6], [0, 6]]);
-      expect(stops.rootFrame.children[3].instance.getRange()).toEqual([[0, 9], [0, 9]]);
+      expect(stops.rootFrame.children[0].instance.getRange()).toEqual([
+        [0, 3],
+        [0, 3],
+      ]);
+      expect(stops.rootFrame.children[1].instance.getRange()).toEqual([
+        [0, 6],
+        [0, 6],
+      ]);
+      expect(stops.rootFrame.children[2].instance.getRange()).toEqual([
+        [0, 6],
+        [0, 6],
+      ]);
+      expect(stops.rootFrame.children[3].instance.getRange()).toEqual([
+        [0, 9],
+        [0, 9],
+      ]);
 
       editor.insertText("a");
 
       expect(stops.rootFrame.children.length).toBe(4);
-      expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 3], [0, 3]]);
-      expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 6], [0, 7]]);
-      expect(stops.rootFrame.children[2].instance.getRange()).toEqual([[0, 7], [0, 7]]);
-      expect(stops.rootFrame.children[3].instance.getRange()).toEqual([[0, 10], [0, 10]]);
+      expect(stops.rootFrame.children[0].instance.getRange()).toEqual([
+        [0, 3],
+        [0, 3],
+      ]);
+      expect(stops.rootFrame.children[1].instance.getRange()).toEqual([
+        [0, 6],
+        [0, 7],
+      ]);
+      expect(stops.rootFrame.children[2].instance.getRange()).toEqual([
+        [0, 7],
+        [0, 7],
+      ]);
+      expect(stops.rootFrame.children[3].instance.getRange()).toEqual([
+        [0, 10],
+        [0, 10],
+      ]);
     });
 
     describe("when the tab stops are nested", () => {
@@ -503,17 +583,39 @@ describe("Expansions", () => {
 
         expect(stops.rootFrame.children.length).toBe(2);
         expect(stops.rootFrame.children[0].children.length).toBe(1);
-        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 0], [0, 0]]);
-        expect(stops.rootFrame.children[0].children[0].instance.getRange()).toEqual([[0, 0], [0, 0]]);
-        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 0], [0, 0]]);
+        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([
+          [0, 0],
+          [0, 0],
+        ]);
+        expect(
+          stops.rootFrame.children[0].children[0].instance.getRange()
+        ).toEqual([
+          [0, 0],
+          [0, 0],
+        ]);
+        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([
+          [0, 0],
+          [0, 0],
+        ]);
 
         editor.insertText("foo");
 
         expect(stops.rootFrame.children.length).toBe(2);
         expect(stops.rootFrame.children[0].children.length).toBe(1);
-        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 0], [0, 3]]);
-        expect(stops.rootFrame.children[0].children[0].instance.getRange()).toEqual([[0, 3], [0, 3]]);
-        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 3], [0, 3]]);
+        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([
+          [0, 0],
+          [0, 3],
+        ]);
+        expect(
+          stops.rootFrame.children[0].children[0].instance.getRange()
+        ).toEqual([
+          [0, 3],
+          [0, 3],
+        ]);
+        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([
+          [0, 3],
+          [0, 3],
+        ]);
       });
 
       it("pushes inner tab stops left if they are before first placeholder content", async () => {
@@ -522,19 +624,51 @@ describe("Expansions", () => {
 
         expect(stops.rootFrame.children.length).toBe(2);
         expect(stops.rootFrame.children[0].children.length).toBe(2);
-        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 0], [0, 1]]);
-        expect(stops.rootFrame.children[0].children[0].instance.getRange()).toEqual([[0, 0], [0, 0]]);
-        expect(stops.rootFrame.children[0].children[1].instance.getRange()).toEqual([[0, 1], [0, 1]]);
-        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 1], [0, 1]]);
+        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([
+          [0, 0],
+          [0, 1],
+        ]);
+        expect(
+          stops.rootFrame.children[0].children[0].instance.getRange()
+        ).toEqual([
+          [0, 0],
+          [0, 0],
+        ]);
+        expect(
+          stops.rootFrame.children[0].children[1].instance.getRange()
+        ).toEqual([
+          [0, 1],
+          [0, 1],
+        ]);
+        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([
+          [0, 1],
+          [0, 1],
+        ]);
 
         editor.insertText("foo");
 
         expect(stops.rootFrame.children.length).toBe(2);
         expect(stops.rootFrame.children[0].children.length).toBe(2);
-        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 0], [0, 3]]);
-        expect(stops.rootFrame.children[0].children[0].instance.getRange()).toEqual([[0, 0], [0, 0]]);
-        expect(stops.rootFrame.children[0].children[1].instance.getRange()).toEqual([[0, 3], [0, 3]]);
-        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 3], [0, 3]]);
+        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([
+          [0, 0],
+          [0, 3],
+        ]);
+        expect(
+          stops.rootFrame.children[0].children[0].instance.getRange()
+        ).toEqual([
+          [0, 0],
+          [0, 0],
+        ]);
+        expect(
+          stops.rootFrame.children[0].children[1].instance.getRange()
+        ).toEqual([
+          [0, 3],
+          [0, 3],
+        ]);
+        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([
+          [0, 3],
+          [0, 3],
+        ]);
 
         expect(gotoNext()).toBe(true);
 
@@ -542,10 +676,26 @@ describe("Expansions", () => {
 
         expect(stops.rootFrame.children.length).toBe(2);
         expect(stops.rootFrame.children[0].children.length).toBe(2);
-        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 0], [0, 9]]);
-        expect(stops.rootFrame.children[0].children[0].instance.getRange()).toEqual([[0, 0], [0, 3]]);
-        expect(stops.rootFrame.children[0].children[1].instance.getRange()).toEqual([[0, 6], [0, 9]]);
-        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 9], [0, 9]]);
+        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([
+          [0, 0],
+          [0, 9],
+        ]);
+        expect(
+          stops.rootFrame.children[0].children[0].instance.getRange()
+        ).toEqual([
+          [0, 0],
+          [0, 3],
+        ]);
+        expect(
+          stops.rootFrame.children[0].children[1].instance.getRange()
+        ).toEqual([
+          [0, 6],
+          [0, 9],
+        ]);
+        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([
+          [0, 9],
+          [0, 9],
+        ]);
       });
 
       it("grows outer tab stops when the inner is active", async () => {
@@ -554,17 +704,39 @@ describe("Expansions", () => {
 
         expect(stops.rootFrame.children.length).toBe(2);
         expect(stops.rootFrame.children[0].children.length).toBe(1);
-        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 0], [0, 0]]);
-        expect(stops.rootFrame.children[0].children[0].instance.getRange()).toEqual([[0, 0], [0, 0]]);
-        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 0], [0, 0]]);
+        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([
+          [0, 0],
+          [0, 0],
+        ]);
+        expect(
+          stops.rootFrame.children[0].children[0].instance.getRange()
+        ).toEqual([
+          [0, 0],
+          [0, 0],
+        ]);
+        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([
+          [0, 0],
+          [0, 0],
+        ]);
 
         editor.setText("foo");
 
         expect(stops.rootFrame.children.length).toBe(2);
         expect(stops.rootFrame.children[0].children.length).toBe(1);
-        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([[0, 0], [0, 3]]);
-        expect(stops.rootFrame.children[0].children[0].instance.getRange()).toEqual([[0, 0], [0, 3]]);
-        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([[0, 3], [0, 3]]);
+        expect(stops.rootFrame.children[0].instance.getRange()).toEqual([
+          [0, 0],
+          [0, 3],
+        ]);
+        expect(
+          stops.rootFrame.children[0].children[0].instance.getRange()
+        ).toEqual([
+          [0, 0],
+          [0, 3],
+        ]);
+        expect(stops.rootFrame.children[1].instance.getRange()).toEqual([
+          [0, 3],
+          [0, 3],
+        ]);
       });
     });
   });

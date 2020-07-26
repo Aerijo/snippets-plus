@@ -13,16 +13,19 @@
     "atom": ">=1.49.0 <2.0.0"
   },
   "scripts": {
-    "pegjs-build": "pegjs ./lib/parser/snippet-parser-lenient.pegjs"
+    "pegjs-build": "pegjs ./lib/parser/snippet-parser-lenient.pegjs",
+    "lint": "prettier --check .",
+    "lint-write": "prettier --write ."
   },
   "dependencies": {
     "cson-parser": "4.0.4",
-    "scoped-property-store": "^0.17.0"
+    "scoped-property-store": "0.17.0"
   },
   "devDependencies": {
     "@types/atom": "^1.40.4",
     "@types/node": "^14.0.23",
-    "pegjs": "^0.10.0"
+    "pegjs": "0.10.0",
+    "prettier": "2.0.5"
   },
   "consumedServices": {
     "status-bar": {

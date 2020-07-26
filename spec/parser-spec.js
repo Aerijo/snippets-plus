@@ -1,4 +1,4 @@
-const { SnippetParser } = require('../lib/snippet-parser');
+const { SnippetParser } = require("../lib/snippet-parser");
 
 describe("Snippet Body Parser", () => {
   // Helper for testing a snippet parse tree. The `input`
@@ -11,16 +11,15 @@ describe("Snippet Body Parser", () => {
   describe("when parsing tab stops", () => {
     it("parses simple tab stops", () => {
       expectMatch("hello$1world${2}", [
-        "hello", { index: 1 }, "world", { index: 2 },
+        "hello",
+        { index: 1 },
+        "world",
+        { index: 2 },
       ]);
     });
 
     it("skips escaped tab stops", () => {
-      expectMatch("$1 \\$2 $3", [
-        { index: 1 },
-        " $2 ",
-        { index: 3 },
-      ]);
+      expectMatch("$1 \\$2 $3", [{ index: 1 }, " $2 ", { index: 3 }]);
     });
 
     it("only allows non-negative integer stop numbers", () => {
@@ -45,8 +44,8 @@ describe("Snippet Body Parser", () => {
               { index: 2 },
               { variable: "foo" },
               { index: 3, choices: ["a", "b"] },
-            ]
-          }
+            ],
+          },
         ]);
       });
 
@@ -60,14 +59,12 @@ describe("Snippet Body Parser", () => {
                 content: [
                   {
                     index: 3,
-                    content: [
-                      "levels"
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
+                    content: ["levels"],
+                  },
+                ],
+              },
+            ],
+          },
         ]);
       });
 
@@ -75,9 +72,9 @@ describe("Snippet Body Parser", () => {
         expectMatch("${1:}}", [
           {
             index: 1,
-            content: []
+            content: [],
           },
-          "}"
+          "}",
         ]);
       });
 
@@ -89,10 +86,8 @@ describe("Snippet Body Parser", () => {
         expectMatch("${1:$}", [
           {
             index: 1,
-            content: [
-              "$"
-            ]
-          }
+            content: ["$"],
+          },
         ]);
       });
     });
@@ -105,11 +100,9 @@ describe("Snippet Body Parser", () => {
             index: 1,
             transformation: {
               find: /foo/,
-              replace: [
-                "bar"
-              ]
-            }
-          }
+              replace: ["bar"],
+            },
+          },
         ]);
       });
     });
@@ -122,7 +115,7 @@ describe("Snippet Body Parser", () => {
         { variable: "foo2__bar" },
         "&baz",
         { variable: "abc" },
-        "d"
+        "d",
       ]);
     });
 
@@ -159,8 +152,8 @@ describe("Snippet Body Parser", () => {
               { index: 2 },
               { variable: "bar" },
               { index: 3, choices: ["a", "b"] },
-            ]
-          }
+            ],
+          },
         ]);
       });
 
@@ -177,11 +170,9 @@ describe("Snippet Body Parser", () => {
             variable: "var",
             transformation: {
               find: /foo/,
-              replace: [
-                "bar"
-              ]
-            }
-          }
+              replace: ["bar"],
+            },
+          },
         ]);
       });
     });
@@ -208,20 +199,17 @@ describe("Snippet Body Parser", () => {
       expectMatch("${1|a,b\\,c,d\\|},e\\$f|}", [
         {
           index: 1,
-          choices: [
-            "a",
-            "b,c",
-            "d|}",
-            "e\\$f"
-          ]
-        }
+          choices: ["a", "b,c", "d|}", "e\\$f"],
+        },
       ]);
     });
   });
 
   describe("when parsing transformations", () => {
     it("allows an empty transformation", () => {
-      expectMatch("${1///}", [{ index: 1, transformation: { find: new RegExp(""), replace: [] } }]);
+      expectMatch("${1///}", [
+        { index: 1, transformation: { find: new RegExp(""), replace: [] } },
+      ]);
     });
 
     it("applies flags to the find regex", () => {
@@ -230,11 +218,9 @@ describe("Snippet Body Parser", () => {
           index: 1,
           transformation: {
             find: /foo/gimsuy,
-            replace: [
-              "bar"
-            ]
-          }
-        }
+            replace: ["bar"],
+          },
+        },
       ]);
     });
 
@@ -245,7 +231,7 @@ describe("Snippet Body Parser", () => {
         { index: 1 },
         "/",
         { variable: "bar" },
-        "/}"
+        "/}",
       ]);
     });
 
@@ -255,11 +241,9 @@ describe("Snippet Body Parser", () => {
           index: 1,
           transformation: {
             find: /foo\/\$\:\n\r/,
-            replace: [
-              "baz"
-            ]
-          }
-        }
+            replace: ["baz"],
+          },
+        },
       ]);
     });
 
@@ -277,8 +261,8 @@ describe("Snippet Body Parser", () => {
             transformation: {
               find: /foo/,
               replace: tree,
-            }
-          }
+            },
+          },
         ]);
       }
 
@@ -294,21 +278,19 @@ describe("Snippet Body Parser", () => {
           { inlineModifier: "L" },
           { inlineModifier: "u" },
           { inlineModifier: "U" },
-          "bar"
+          "bar",
         ]);
       });
 
       it("allows '$', '\\', and '/' to be escaped", () => {
-        expectReplaceMatch("\\$1 \\\\ \\/", [
-          "$1 \\ /"
-        ]);
+        expectReplaceMatch("\\$1 \\\\ \\/", ["$1 \\ /"]);
       });
 
       describe("when parsing formats", () => {
         it("parses simple formats", () => {
           expectReplaceMatch("$1${2}", [
             { backreference: 1 },
-            { backreference: 2 }
+            { backreference: 2 },
           ]);
         });
 
@@ -317,7 +299,7 @@ describe("Snippet Body Parser", () => {
             {
               backreference: 1,
               modifier: ["upcase"],
-            }
+            },
           ]);
         });
 
@@ -326,7 +308,7 @@ describe("Snippet Body Parser", () => {
             {
               backreference: 1,
               modifier: ["upcase", "downcase", "g"],
-            }
+            },
           ]);
         });
 
@@ -336,10 +318,10 @@ describe("Snippet Body Parser", () => {
               backreference: 1,
               ifContent: [
                 "foo",
-                { backreference: 2, },
-                "$bar" // no variables inside a replace / format
-              ]
-            }
+                { backreference: 2 },
+                "$bar", // no variables inside a replace / format
+              ],
+            },
           ]);
         });
 
@@ -347,13 +329,9 @@ describe("Snippet Body Parser", () => {
           expectReplaceMatch("${1:?foo\\:stillIf:bar\\}stillElse}", [
             {
               backreference: 1,
-              ifContent: [
-                "foo:stillIf"
-              ],
-              elseContent: [
-                "bar}stillElse"
-              ]
-            }
+              ifContent: ["foo:stillIf"],
+              elseContent: ["bar}stillElse"],
+            },
           ]);
         });
 
@@ -361,10 +339,8 @@ describe("Snippet Body Parser", () => {
           expectReplaceMatch("${1:-foo}", [
             {
               backreference: 1,
-              elseContent: [
-                "foo"
-              ]
-            }
+              elseContent: ["foo"],
+            },
           ]);
         });
 
@@ -372,10 +348,8 @@ describe("Snippet Body Parser", () => {
           expectReplaceMatch("${1:foo}", [
             {
               backreference: 1,
-              elseContent: [
-                "foo"
-              ]
-            }
+              elseContent: ["foo"],
+            },
           ]);
         });
 
@@ -389,17 +363,13 @@ describe("Snippet Body Parser", () => {
                   elseContent: [
                     {
                       backreference: 3,
-                      ifContent: [
-                        "a lot of"
-                      ],
-                      elseContent: [
-                        "layers"
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
+                      ifContent: ["a lot of"],
+                      elseContent: ["layers"],
+                    },
+                  ],
+                },
+              ],
+            },
           ]);
         });
       });
@@ -414,9 +384,7 @@ describe("Snippet Body Parser", () => {
     const escapeResolveChoice = "\\$ \\ \\} \\% \\* , | \\{ \\n \\r \\:";
 
     it("only escapes '$', '\\', and '}' in top level text", () => {
-      expectMatch(escapeTest, [
-        escapeResolveTop
-      ]);
+      expectMatch(escapeTest, [escapeResolveTop]);
     });
 
     it("escapes the same characters inside tab stop placeholders as in top level text", () => {
@@ -440,11 +408,7 @@ describe("Snippet Body Parser", () => {
 
   describe("when a potential non-text parse fails", () => {
     it("accepts the first character as text and resumes", () => {
-      expectMatch("${1:${2}${3}", [
-        "${1:",
-        { index: 2 },
-        { index: 3 }
-      ]);
+      expectMatch("${1:${2}${3}", ["${1:", { index: 2 }, { index: 3 }]);
     });
   });
 });

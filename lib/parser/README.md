@@ -35,6 +35,7 @@ I also intend to support different "dialects"; future additions include the orig
 Strict mode also opens possibilities for backwards compatible extensions; e.g., it would currently disallow `${foo@bar}` because the `$` is unescaped and the `@` doesn't match an existing contruct like `${foo:bar}` (`foo` variable with placeholder `bar`). So `@` could be introduced in future to mean "with arguments" to the variable or something (e.g., for formatting dates).
 
 ### TODO
+
 - Allow variables inside of transformation replacers. This is safe, as variables are resolved on expansion, so will appear as plain text for tab stop transforms.
 - Implement strict parser.
   - How to handle errors?
