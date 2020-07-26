@@ -154,6 +154,10 @@ Until now this is all the same as for the original snippets package. But this pa
 
 As with the original package, user snippets are watched and automatically updated when the file changes.
 
+This package also provides a new snippet attribute `key`, which lets you associate a snippet with a keybinding. Doing this effectively skips the prefix part.
+
+It uses the same scope as the snippet to determine when it can be triggered, and
+
 <!-- TODO: Add support for a "session" level snippet, which is defined in a prompt and (optionally?) destroyed when the editor is closed -->
 
 ### Using
