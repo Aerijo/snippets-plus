@@ -10,7 +10,8 @@ notifications:
     on_failure: change
 
 script:
-  - npm --version
+  - npm install
+  - npm run lint
   - "curl -s https://raw.githubusercontent.com/atom/ci/master/build-package.sh | sh"
 
 git:
