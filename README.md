@@ -35,9 +35,10 @@ If you want to add a tab stop before some plain text numbers, use the `${n}` var
 
 If you want to have some default text at a tab stop, you can use the `${n:placeholder}` syntax. This behaves the same as `$n`, except the `placeholder` text is displayed, and will be selected when arriving at the tab stop. The placeholder value can be arbitrary; you can even nest tab stops like `${2:foo$1}`, which will let you type at `$1` and then select that and `foo` when arriving at `$2`.
 
-  - NOTE: The semantics of nested same-tab stops (`${1:$1}`) and adjacent tab stops (`$1$1`) are still undecided and subject to change.
+- NOTE: The semantics of nested same-tab stops (`${1:$1}`) and adjacent tab stops (`$1$1`) are still undecided and subject to change.
 
 If you want to compute a value at the time of inserting a snippet, you can do so with _variables_. These are represented with `$name`, where `name` is an ASCII string of letters, numbers, and underscores. A name may not start with a number. A variable is resolved based on name, with the following being provided by default:
+
 - `TM_FILENAME`: The name of the current file (`untitled` if not saved to disk)
 - `CURRENT_YEAR`: The current year. E.g., `2020`.
 - `CLIPBOARD`: The contents of the clipboard.
@@ -54,21 +55,22 @@ The `find` section is a JS [regular expression](https://developer.mozilla.org/en
 The `replace` section is a mix of plain text and special `format`s. Plain text is inserted directly. Currently there is no way to use variables or named capture groups in the `replace` section.
 
 A format looks like a tab stop, e.g., `$1`, except the number refers to capture groups in the `find` regex. If the capture group has a value it will be inserted as plain text. Formats also have several special features:
-  - `${n:/transform}`: Written this way, where `transform` is a name like a variable, the value of the capture group will be transformed based on `transform` before being written out. Builtin values for transform are `upcase` and `downcase`. So `${1:/upcase}` will return the uppercase version of whatever capture group 1 matched. These names are different to variable names, and are also case sensitive.
-  - `${n:+ifContent}`: If the `n`th capture group matched something (even if it's the empty string) then evaluate the `ifContent` as if it was there all along.
-  - `${n:-elseContent}`: If the `n`th capture group did not match anything, evaluate the `elseContent`.
-  - `${n:?ifContent:elseContent}`: Shorthand for the above two conditionals.
-  - `${n:elseContent}`: (deprecated) Alternative to the `${n:-...}` form. Present for compatibility with other editors, but should not be used because the first character after the `:` may cause it to be parsed as something else (e.g., if it was a `+` it would turn into an if-conditional).
+
+- `${n:/transform}`: Written this way, where `transform` is a name like a variable, the value of the capture group will be transformed based on `transform` before being written out. Builtin values for transform are `upcase` and `downcase`. So `${1:/upcase}` will return the uppercase version of whatever capture group 1 matched. These names are different to variable names, and are also case sensitive.
+- `${n:+ifContent}`: If the `n`th capture group matched something (even if it's the empty string) then evaluate the `ifContent` as if it was there all along.
+- `${n:-elseContent}`: If the `n`th capture group did not match anything, evaluate the `elseContent`.
+- `${n:?ifContent:elseContent}`: Shorthand for the above two conditionals.
+- `${n:elseContent}`: (deprecated) Alternative to the `${n:-...}` form. Present for compatibility with other editors, but should not be used because the first character after the `:` may cause it to be parsed as something else (e.g., if it was a `+` it would turn into an if-conditional).
 
 There are also a set of inline modifiers that control how following text is transformed.
-  - `\u`: Uppercase the next character
-  - `\U`: Uppercase all following characters
-  - `\l`: Lowercase the next character
-  - `\L`: Lowercase all following characters
-  - `\E`: Clear any active modifiers
 
+- `\u`: Uppercase the next character
+- `\U`: Uppercase all following characters
+- `\l`: Lowercase the next character
+- `\L`: Lowercase all following characters
+- `\E`: Clear any active modifiers
 
-  - NOTE: These modifiers are applied after the named transformations. So `\U${n:/downcase}` will still be in all caps.
+* NOTE: These modifiers are applied after the named transformations. So `\U${n:/downcase}` will still be in all caps.
 
 ### Defining snippets
 
