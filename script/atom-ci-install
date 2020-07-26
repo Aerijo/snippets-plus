@@ -97,9 +97,11 @@ function printVersions() {
   cp.execSync(`${APM_SCRIPT_PATH} --version`);
 }
 
-setScriptNames();
+const channel = "stable";
 
-const context = installAtom(downloadAtom(getAtomPlatform(), "stable"));
+setScriptNames(channel);
+
+const context = installAtom(downloadAtom(getAtomPlatform(), channel));
 
 console.log(context);
 
