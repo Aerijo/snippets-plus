@@ -1,14 +1,13 @@
 atom-text-editor {
   div .highlight .snippet-tab-stop {
-    background: red;
-    border: solid 1px green;
+    background: @syntax-result-marker-color;
   }
 }
 
 div .snippets-indicator.active {
   display: inline-flex;
-  background-color: red;
+  background-color: @text-color-success;
   border-radius: 100%;
-  width: 5pt;
-  height: 5pt;
+  width: @font-size * 0.6;
+  height: @font-size * 0.6;
 }

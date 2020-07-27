@@ -1,6 +1,6 @@
 const path = require("path");
 
-const SnippetsPlus = require("../lib/main");
+const { SnippetsPlus } = require("../lib/snippets-plus");
 const { SnippetParser } = require("../lib/snippet-parser");
 const { TextEditor, Range, Point } = require("atom");
 
@@ -11,10 +11,14 @@ const { TextEditor, Range, Point } = require("atom");
 
 describe("Expansions", () => {
   let editor;
+  let snippetsPlus;
+
+  beforeEach(() => {
+    snippetsPlus = new SnippetsPlus();
+  });
 
   async function loadSnippet(prefix, body) {
-    SnippetsPlus.clearAll();
-    await SnippetsPlus.loadTestSnippets({
+    await snippetsPlus.loadTestSnippets({
       "*": {
         test: {
           prefix,
@@ -29,11 +33,11 @@ describe("Expansions", () => {
     await loadSnippet(prefix, body);
     editor = e;
     editor.insertText(prefix);
-    SnippetsPlus.expandSnippetsUnderCursors(editor, new SnippetParser());
+    snippetsPlus.expandSnippetsUnderCursors(editor, new SnippetParser());
   }
 
   function getActiveExpansion() {
-    const expansions = SnippetsPlus.getExpansionsForEditor(editor);
+    const expansions = snippetsPlus.getExpansionsForEditor(editor);
     for (const expansion of expansions) {
       return expansion;
     }
@@ -41,11 +45,11 @@ describe("Expansions", () => {
   }
 
   function gotoNext() {
-    return SnippetsPlus.gotoNextTabStop(editor);
+    return snippetsPlus.gotoNextTabStop(editor);
   }
 
   function gotoPrevious() {
-    return SnippetsPlus.gotoPreviousTabStop(editor);
+    return snippetsPlus.gotoPreviousTabStop(editor);
   }
 
   it("expands a simple snippet", async () => {
@@ -177,7 +181,7 @@ describe("Expansions", () => {
       await loadSnippet("prefix", ">$TM_CURRENT_LINE<");
       editor = new TextEditor();
       editor.setText("foo prefix");
-      SnippetsPlus.expandSnippetsUnderCursors(editor, new SnippetParser());
+      snippetsPlus.expandSnippetsUnderCursors(editor, new SnippetParser());
 
       expect(editor.getText()).toBe("foo >foo <");
       expect(gotoNext()).toBe(false);
@@ -187,7 +191,7 @@ describe("Expansions", () => {
       await loadSnippet("prefix", ">$TM_CURRENT_WORD<");
       editor = new TextEditor();
       editor.setText("foo prefix");
-      SnippetsPlus.expandSnippetsUnderCursors(editor, new SnippetParser());
+      snippetsPlus.expandSnippetsUnderCursors(editor, new SnippetParser());
 
       expect(editor.getText()).toBe("foo >prefix<");
       expect(gotoNext()).toBe(false);
@@ -257,7 +261,7 @@ describe("Expansions", () => {
         [0, 3],
       ]);
 
-      SnippetsPlus.expandSnippetWithPrefix(
+      snippetsPlus.expandSnippetWithPrefix(
         editor,
         new Range(new Point(0, 4), new Point(0, 4)),
         "prefix",
