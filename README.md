@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/Aerijo/snippets-plus.svg?token=PvseBojepBevztdKaS9H&branch=master)](https://travis-ci.com/Aerijo/snippets-plus)
+[![Build Status](https://travis-ci.com/Aerijo/snippets-plus.svg?branch=master)](https://travis-ci.com/Aerijo/snippets-plus)
 
 # Snippets-plus
 
