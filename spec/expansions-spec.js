@@ -52,6 +52,13 @@ describe("Expansions", () => {
     return snippetsPlus.gotoPreviousTabStop(editor);
   }
 
+  it("expands an empty snippet", async () => {
+    await expand("");
+    expect(editor.getText()).toBe("");
+    expect(editor.getLastCursor().getBufferPosition()).toEqual([0, 0]);
+    expect(gotoNext()).toBe(false);
+  });
+
   it("expands a simple snippet", async () => {
     const text = "Hello world";
     await expand(text);

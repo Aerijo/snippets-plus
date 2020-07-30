@@ -2,6 +2,7 @@
   "author": "Benjamin Gray",
   "main": "./lib/main",
   "version": "0.6.0",
+  "description": "Reimagining of the core 'snippets' package",
   "repository": {
     "type": "git",
     "url": "https://github.com/Aerijo/snippets-plus"
@@ -13,7 +14,9 @@
     "/styles",
     "/keymaps"
   ],
-  "keywords": [],
+  "keywords": [
+    "snippets"
+  ],
   "license": "MIT",
   "name": "snippets-plus",
   "engines": {
@@ -46,6 +49,13 @@
       "versions": {
         "0.1.0": "provideSnippets"
       }
+    }
+  },
+  "configSchema": {
+    "smartLegacySnippets": {
+      "description": "The original snippets package treated $0 like a regular tab stop that was always put last. Many snippet providers therefore did not use it properly. This setting attempts to convert single tab stops at the end to $0 stops. See the README for details.",
+      "type": "boolean",
+      "default": true
     }
   }
 }

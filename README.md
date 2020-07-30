@@ -12,6 +12,8 @@ Snippets as in the `snippets` package, plus:
 - Command to leave snippets mode
 - Variables and named transformations
 - Conditional transformation replacements
+- Map snippets to keyboard shortcuts
+- Altered `$0` (end tab stop) semantics
 
 ## Snippets
 
@@ -181,6 +183,24 @@ So if we had candidate prefixes `log` and `conlog`, then for the following text 
 - `og`: no snippet matches
 
 To goto the next tab stop, run `Snippets: Next Tab Stop` (again, <kbd>tab</kbd> by default) and to goto the previous run `Snippets: Previous Tab Stop` (<kbd>shift-tab</kbd> by default).
+
+### Legacy parsing mode
+
+I found I have many snippets that are defined like as follows
+
+```
+\\\\textbf{$1}$2
+```
+
+Under the `snippets` package I never noticed a problem, but with this one you see it is still in snippets mode when you reach the `$2` stop. This can cause unexpected behaviour when you next press <kbd>tab</kbd>, and if you have the tab stops markers visible it will look weird too.
+
+By default, this package will try to correct snippets like these. If this option is enabled, then if the last part of the snippet is a simple tab stop, the only one of its index, and also the last (by index), then it will be converted to a `$0` stop. So the above becomes
+
+```
+\\\\textbf{$1}$0
+```
+
+Which behaves much better.
 
 ## Dev fluff
 
