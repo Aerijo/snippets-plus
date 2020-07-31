@@ -53,7 +53,7 @@
         "0.0.0": "consumeSnippetsVariableResolver"
       }
     },
-    "snippets.resolver.transformation": {
+    "snippets.resolver.transform": {
       "versions": {
         "0.0.0": "consumeSnippetsTransformResolver"
       }
