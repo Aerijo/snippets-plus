@@ -15,6 +15,8 @@ Snippets as in the `snippets` package, plus:
 - Map snippets to keyboard shortcuts
 - Altered `$0` (end tab stop) semantics
 
+See [the wiki](https://github.com/Aerijo/snippets-plus/wiki) for more in depth information.
+
 ## Snippets
 
 ### Syntax
@@ -252,4 +254,6 @@ Which behaves much better. Disable this mode if you want full control over your 
 
 ### Testing
 
-Run `atom test .` to run the test suite. Replace `atom` with `atom-beta` and `atom-nightly` as appropriate.
+Easiest is to open the project in Atom and run `Window: Run Package Specs`.
+
+Alteratively run `atom test .` in the command line to run the test suite. Replace `atom` with `atom-beta` and `atom-nightly` as appropriate.
