@@ -41,12 +41,11 @@ If you want to have some default text at a tab stop, you can use the `${n:placeh
 
 - NOTE: The semantics of nested same-tab stops (`${1:$1}`) and adjacent tab stops (`$1$1`) are still undecided and subject to change.
 
-If you want to compute a value at the time of inserting a snippet, you can do so with _variables_. These are represented with `$name`, where `name` is an ASCII string of letters, numbers, and underscores. A name may not start with a number. A variable is resolved based on name, with the following being provided by default:
+If you want to compute a value at the time of inserting a snippet, you can do so with _variables_. These are represented with `$name`, where `name` is an ASCII string of letters, numbers, and underscores. A name may not start with a number. A variable is resolved based on name and the context of the expansion. The following are some examples, see [the wiki](https://github.com/Aerijo/snippets-plus/wiki/Default-transforms-and-variables) for a comprehensive list of default variables.
 
 - `TM_FILENAME`: The name of the current file (`untitled` if not saved to disk)
 - `CURRENT_YEAR`: The current year. E.g., `2020`.
 - `CLIPBOARD`: The contents of the clipboard.
-<!-- TODO: List them all -->
 
 Variable names are case sensitive.
 
@@ -160,9 +159,9 @@ Until now this is all the same as for the original snippets package. But this pa
 
 As with the original package, user snippets are watched and automatically updated when the file changes.
 
-This package also provides a new snippet attribute `key`, which lets you associate a snippet with a keybinding. Doing this effectively skips the prefix part.
+This package also provides a new snippet attribute `key`, which lets you associate a snippet with a keybinding. Doing this effectively skips using the prefix.
 
-It uses the same scope as the snippet to determine when it can be triggered, and
+The key binding uses the same scope as the snippet to determine when it can be triggered, so you can have multiple snippets on the same key and the most specific match will be expanded.
 
 <!-- TODO: Add support for a "session" level snippet, which is defined in a prompt and (optionally?) destroyed when the editor is closed -->
 
