@@ -194,13 +194,19 @@ I found I have many snippets that are defined like as follows
 
 Under the `snippets` package I never noticed a problem, but with this one you see it is still in snippets mode when you reach the `$2` stop. This can cause unexpected behaviour when you next press <kbd>tab</kbd>, and if you have the tab stops markers visible it will look weird too.
 
-By default, this package will try to correct snippets like these. If this option is enabled, then if the last part of the snippet is a simple tab stop, the only one of its index, and also the last (by index), then it will be converted to a `$0` stop. So the above becomes
+By default, this package will try to correct snippets like these. If this option is enabled, then if
+
+- the last part of the snippet (by location) is a simple tab stop,
+- the tab stop is the only one of its index, and
+- it is also the last (by index),
+
+then it will be converted to a `$0` stop. So the above becomes
 
 ```
 \\\\textbf{$1}$0
 ```
 
-Which behaves much better.
+Which behaves much better. Disable this mode if you want full control over your snippets.
 
 ## Dev fluff
 
