@@ -47,7 +47,7 @@ If you want to compute a value at the time of inserting a snippet, you can do so
 - `CURRENT_YEAR`: The current year. E.g., `2020`.
 - `CLIPBOARD`: The contents of the clipboard.
 
-Variable names are case sensitive.
+Variable names are case sensitive for the default resolvers, but packages providing custom variable may not be.
 
 As with tab stops, variables can have placeholder text using `${name:placeholder}` syntax. The placeholder is used if the variable is not defined. If there is no placeholder, and the variable is undefined, then the variable is converted into a tab stop with the variable name as a placeholder.
 
