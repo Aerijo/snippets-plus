@@ -42,6 +42,21 @@
       "versions": {
         "^1.0.0": "consumeStatusBar"
       }
+    },
+    "snippets.resolver": {
+      "versions": {
+        "0.0.0": "consumeSnippetsResolver"
+      }
+    },
+    "snippets.resolver.variable": {
+      "versions": {
+        "0.0.0": "consumeSnippetsVariableResolver"
+      }
+    },
+    "snippets.resolver.transformation": {
+      "versions": {
+        "0.0.0": "consumeSnippetsTransformResolver"
+      }
     }
   },
   "providedServices": {
