@@ -27,24 +27,65 @@ describe("Package interaction", () => {
   //   mainModule = snippetsPlusPkg.mainModule;
   // });
 
-  // describe("when loading snippets for a package", () => {
-  //   it("finds all .cson and .json files in the 'snippets' directory", async () => {
-  //     await Promise.all([loadFixturePackage("package1")]);
-  //
-  //     expect(atom.packages.getLoadedPackage("package1")).toBeDefined();
-  //
-  //     await activatePackage();
-  //
-  //     expect(snippetsPlus.getSnippetsForSelector("*")).toBeUndefined();
-  //
-  //     await atom.packages.activatePackage("package1");
-  //
-  //     await snippetsPlus.queuePackageOperation("package1", () => {
-  //       expect(snippetsPlus.getSnippetsForSelector("*")).toBeDefined();
-  //     });
-  //
-  //     console.log(mainModule);
-  //     debugger;
-  //   });
-  // });
+  describe("when loading snippets for a package", () => {
+    function expectKeys(object, keys) {
+      for (const key of keys) {
+        expect(object[key]).toBeDefined();
+      }
+    }
+
+    it("loads snippets for all existing active packages", async () => {
+      loadFixturePackage("package1");
+      loadFixturePackage("package2");
+
+      expect(atom.packages.getLoadedPackage("package1")).toBeTruthy();
+      expect(atom.packages.getLoadedPackage("package2")).toBeTruthy();
+      expect(atom.packages.getActivePackage("package1")).toBeFalsy();
+      expect(atom.packages.getActivePackage("package2")).toBeFalsy();
+
+      const [pkg1, pkg2] = await Promise.all([
+        atom.packages.activatePackage("package1"),
+        atom.packages.activatePackage("package2"),
+      ]);
+
+      expect(atom.packages.getActivePackage("package1")).toBeTruthy();
+      expect(atom.packages.getActivePackage("package2")).toBeTruthy();
+
+      await activatePackage();
+
+      await snippetsPlus.queuePackageOperation(pkg1, () => {});
+      await snippetsPlus.queuePackageOperation(pkg2, () => {});
+
+      const snippets = snippetsPlus.getSnippetsForSelector("*");
+      expectKeys(snippets, ["p1-1", "p2-1"]);
+    });
+
+    it("loads snippets for packages activated after this one", async () => {
+      await activatePackage();
+
+      loadFixturePackage("package1");
+      loadFixturePackage("package2");
+
+      expect(atom.packages.getLoadedPackage("package1")).toBeTruthy();
+      expect(atom.packages.getLoadedPackage("package2")).toBeTruthy();
+      expect(atom.packages.getActivePackage("package1")).toBeFalsy();
+      expect(atom.packages.getActivePackage("package2")).toBeFalsy();
+
+      expect(snippetsPlus.getSnippetsForSelector("*")).toEqual({});
+
+      const [pkg1, pkg2] = await Promise.all([
+        atom.packages.activatePackage("package1"),
+        atom.packages.activatePackage("package2"),
+      ]);
+
+      expect(atom.packages.getActivePackage("package1")).toBeTruthy();
+      expect(atom.packages.getActivePackage("package2")).toBeTruthy();
+
+      await snippetsPlus.queuePackageOperation(pkg1, () => {});
+      await snippetsPlus.queuePackageOperation(pkg2, () => {});
+
+      const snippets = snippetsPlus.getSnippetsForSelector("*");
+      expectKeys(snippets, ["p1-1", "p2-1"]);
+    });
+  });
 });
