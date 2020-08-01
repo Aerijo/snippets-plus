@@ -1,0 +1,4 @@
+'*':
+  s1:
+    prefix: 't4'
+    body: 'file folder/nested, snippet 1'

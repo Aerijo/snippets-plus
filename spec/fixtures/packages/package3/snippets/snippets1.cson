@@ -1,0 +1,7 @@
+'*':
+  's1':
+    prefix: 't1'
+    body: 'file 1, snippet 1'
+  's2':
+    prefix: 't2'
+    body: 'file 1, snippet 2'

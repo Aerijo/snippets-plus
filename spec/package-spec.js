@@ -83,7 +83,7 @@ describe("Package interaction", () => {
       expectKeys(snippets, ["p1-1", "p2-1"]);
     });
 
-    it("unload snippets when packages are deactivated", async () => {
+    it("unloads snippets when packages are deactivated", async () => {
       loadFixturePackage("package1");
       loadFixturePackage("package2");
 
@@ -101,6 +101,10 @@ describe("Package interaction", () => {
       expectKeys(snippets, ["p1-1", "p2-1", "t2"]);
       expect(snippets["t2"].body).toBe("More specific selector");
 
+      snippets = snippetsPlus.getSnippetsForSelector("*");
+      expectKeys(snippets, ["p1-1", "p2-1", "t2"]);
+      expect(snippets["t2"].body).toBe("Less specific selector");
+
       await atom.packages.deactivatePackage("package1");
 
       await snippetsPlus.queuePackageOperation(pkg1, () => {});
@@ -108,6 +112,17 @@ describe("Package interaction", () => {
       snippets = snippetsPlus.getSnippetsForSelector(".source.js");
       expectKeys(snippets, ["p2-1", "t2"]);
       expect(snippets["t2"].body).toBe("Less specific selector");
+    });
+
+    it("searches the 'snippets' directory recursively for all snippet files", async () => {
+      loadFixturePackage("package3");
+      const pkg3 = await atom.packages.activatePackage("package3");
+      await activatePackage();
+      await snippetsPlus.queuePackageOperation(pkg3, () => {});
+
+      let snippets = snippetsPlus.getSnippetsForSelector("*");
+      expectKeys(snippets, ["t1", "t2", "t3", "t4"]);
+      expect(snippets["t5"]).toBeUndefined();
     });
   });
 });
