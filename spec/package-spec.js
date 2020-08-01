@@ -1,9 +1,11 @@
 // These specs cover the package interaction, such as activation / deactivation,
 // gathering snippets from other packages, observing user snippets, etc.
 
-// const { SnippetsPlus } = require("../lib/snippets-plus");
-
+const fs = require("fs");
 const path = require("path");
+const tmp = require("tmp-promise");
+
+tmp.setGracefulCleanup();
 
 describe("Package interaction", () => {
   let snippetsPlusPkg;
@@ -22,13 +24,17 @@ describe("Package interaction", () => {
     );
   }
 
-  describe("when loading snippets for a package", () => {
-    function expectKeys(object, keys) {
-      for (const key of keys) {
-        expect(object[key]).toBeDefined();
-      }
+  function expectExactKeys(object, keys) {
+    for (const key of Object.keys(object)) {
+      expect(keys.includes(key)).toBe(true);
     }
 
+    for (const key of keys) {
+      expect(object[key]).toBeDefined();
+    }
+  }
+
+  describe("when loading snippets for a package", () => {
     it("loads snippets for all existing active packages", async () => {
       loadFixturePackage("package1");
       loadFixturePackage("package2");
@@ -52,7 +58,7 @@ describe("Package interaction", () => {
       await snippetsPlus.queuePackageOperation(pkg2, () => {});
 
       const snippets = snippetsPlus.getSnippetsForSelector("*");
-      expectKeys(snippets, ["p1-1", "p2-1"]);
+      expectExactKeys(snippets, ["p1-1", "p2-1", "t2"]);
     });
 
     it("loads snippets for packages activated after this one", async () => {
@@ -80,7 +86,7 @@ describe("Package interaction", () => {
       await snippetsPlus.queuePackageOperation(pkg2, () => {});
 
       const snippets = snippetsPlus.getSnippetsForSelector("*");
-      expectKeys(snippets, ["p1-1", "p2-1"]);
+      expectExactKeys(snippets, ["p1-1", "p2-1", "t2"]);
     });
 
     it("unloads snippets when packages are deactivated", async () => {
@@ -98,11 +104,11 @@ describe("Package interaction", () => {
       await snippetsPlus.queuePackageOperation(pkg2, () => {});
 
       let snippets = snippetsPlus.getSnippetsForSelector(".source.js");
-      expectKeys(snippets, ["p1-1", "p2-1", "t2"]);
+      expectExactKeys(snippets, ["p1-1", "p2-1", "t2"]);
       expect(snippets["t2"].body).toBe("More specific selector");
 
       snippets = snippetsPlus.getSnippetsForSelector("*");
-      expectKeys(snippets, ["p1-1", "p2-1", "t2"]);
+      expectExactKeys(snippets, ["p1-1", "p2-1", "t2"]);
       expect(snippets["t2"].body).toBe("Less specific selector");
 
       await atom.packages.deactivatePackage("package1");
@@ -110,7 +116,7 @@ describe("Package interaction", () => {
       await snippetsPlus.queuePackageOperation(pkg1, () => {});
 
       snippets = snippetsPlus.getSnippetsForSelector(".source.js");
-      expectKeys(snippets, ["p2-1", "t2"]);
+      expectExactKeys(snippets, ["p2-1", "t2"]);
       expect(snippets["t2"].body).toBe("Less specific selector");
     });
 
@@ -121,8 +127,30 @@ describe("Package interaction", () => {
       await snippetsPlus.queuePackageOperation(pkg3, () => {});
 
       let snippets = snippetsPlus.getSnippetsForSelector("*");
-      expectKeys(snippets, ["t1", "t2", "t3", "t4"]);
-      expect(snippets["t5"]).toBeUndefined();
+      expectExactKeys(snippets, ["t1", "t2", "t3", "t4"]);
     });
   });
+
+  describe("when loading snippets from the user file", () => {
+    it("finds the path based on the 'atom.getConfigDirPath' value", async () => {
+      const configDirPath = (
+        await tmp.dir({ prefix: "atom-snippets-plus-test" })
+      ).path;
+
+      fs.copyFileSync(
+        path.join(__dirname, "fixtures", "userSnippets.cson"),
+        path.join(configDirPath, "snippets.cson")
+      );
+
+      spyOn(atom, "getConfigDirPath").andReturn(configDirPath);
+
+      await activatePackage();
+
+      expect(snippetsPlus.getUserSnippetsPath()).toBe(
+        path.join(configDirPath, "snippets.cson")
+      );
+    });
+  });
+
+  describe("the resolver services", () => {});
 });

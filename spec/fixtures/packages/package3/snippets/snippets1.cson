@@ -5,3 +5,6 @@
   's2':
     prefix: 't2'
     body: 'file 1, snippet 2'
+  'not this':
+    prefix: 5
+    body: 'prefix must be a string'

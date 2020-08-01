@@ -35,7 +35,8 @@
     "@types/atom": "^1.40.4",
     "@types/node": "^14.0.23",
     "pegjs": "0.10.0",
-    "prettier": "2.0.5"
+    "prettier": "2.0.5",
+    "tmp-promise": "^3.0.2"
   },
   "consumedServices": {
     "status-bar": {
