@@ -1,13 +1,13 @@
+// These specs work with expansions directly.
+// Put tests for package interaction (loading
+// package/user snippets, observing them, etc.)
+// somewhere else.
+
 const path = require("path");
 
 const { SnippetsPlus } = require("../lib/snippets-plus");
 const { SnippetParser } = require("../lib/snippet-parser");
 const { TextEditor, Range, Point } = require("atom");
-
-// These specs work with expansions directly.
-// Put tests for package interaction (loading
-// package/user snippets, observing them, etc.)
-// somewhere else.
 
 describe("Expansions", () => {
   let editor;
