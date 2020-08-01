@@ -1,0 +1,7 @@
+'*':
+  s1:
+    prefix: 'var'
+    body: '$CLIPBOARD'
+  s2:
+    prefix: 'transform'
+    body: '${CLIPBOARD/.*/${0:/upcase}}${CLIPBOARD/.*/${0:/downcase}}'

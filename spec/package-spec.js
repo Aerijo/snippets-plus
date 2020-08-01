@@ -152,5 +152,38 @@ describe("Package interaction", () => {
     });
   });
 
-  describe("the resolver services", () => {});
+  describe("the resolver services", () => {
+    it("accepts 'snippets.resolver' providers", async () => {
+      atom.clipboard.write("clip");
+
+      await activatePackage();
+
+      expect(snippetsPlus.transformResolver.resolve("upcase", "Foo")).toBe(
+        "FOO"
+      );
+      expect(snippetsPlus.variableResolver.resolve("CLIPBOARD")).toBe("clip");
+
+      loadFixturePackage("package4");
+      const pkg4 = await atom.packages.activatePackage("package4");
+
+      await snippetsPlus.queuePackageOperation(pkg4, () => {});
+
+      expect(snippetsPlus.transformResolver.resolve("upcase", "Foo")).toBe(
+        "foo"
+      );
+
+      expect(snippetsPlus.variableResolver.resolve("CLIPBOARD")).toBe(
+        "OVERRIDDEN"
+      );
+
+      await atom.packages.deactivatePackage("package4");
+      await snippetsPlus.queuePackageOperation(pkg4, () => {});
+
+      expect(snippetsPlus.transformResolver.resolve("upcase", "Foo")).toBe(
+        "FOO"
+      );
+
+      expect(snippetsPlus.variableResolver.resolve("CLIPBOARD")).toBe("clip");
+    });
+  });
 });

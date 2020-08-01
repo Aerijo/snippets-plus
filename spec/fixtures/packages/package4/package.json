@@ -1,0 +1,14 @@
+{
+  "name": "package4",
+  "main": "index.js",
+  "engines": {
+    "atom": ">=1.49.0 <2.0.0"
+  },
+  "providedServices": {
+    "snippets.resolver": {
+      "versions": {
+        "0.0.0": "provideResolvers"
+      }
+    }
+  }
+}
