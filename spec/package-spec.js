@@ -22,11 +22,6 @@ describe("Package interaction", () => {
     );
   }
 
-  // beforeEach(async () => {
-  //   snippetsPlusPkg = await atom.packages.activatePackage("snippets-plus");
-  //   mainModule = snippetsPlusPkg.mainModule;
-  // });
-
   describe("when loading snippets for a package", () => {
     function expectKeys(object, keys) {
       for (const key of keys) {
@@ -86,6 +81,33 @@ describe("Package interaction", () => {
 
       const snippets = snippetsPlus.getSnippetsForSelector("*");
       expectKeys(snippets, ["p1-1", "p2-1"]);
+    });
+
+    it("unload snippets when packages are deactivated", async () => {
+      loadFixturePackage("package1");
+      loadFixturePackage("package2");
+
+      const [pkg1, pkg2] = await Promise.all([
+        atom.packages.activatePackage("package1"),
+        atom.packages.activatePackage("package2"),
+      ]);
+
+      await activatePackage();
+
+      await snippetsPlus.queuePackageOperation(pkg1, () => {});
+      await snippetsPlus.queuePackageOperation(pkg2, () => {});
+
+      let snippets = snippetsPlus.getSnippetsForSelector(".source.js");
+      expectKeys(snippets, ["p1-1", "p2-1", "t2"]);
+      expect(snippets["t2"].body).toBe("More specific selector");
+
+      await atom.packages.deactivatePackage("package1");
+
+      await snippetsPlus.queuePackageOperation(pkg1, () => {});
+
+      snippets = snippetsPlus.getSnippetsForSelector(".source.js");
+      expectKeys(snippets, ["p2-1", "t2"]);
+      expect(snippets["t2"].body).toBe("Less specific selector");
     });
   });
 });

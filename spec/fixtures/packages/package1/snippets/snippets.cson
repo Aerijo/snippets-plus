@@ -1,4 +1,9 @@
 '*':
   's1':
     prefix: 'p1-1'
-    body: "Package 1, snippet 1"
+    body: 'Package 1, snippet 1'
+
+'.source.js':
+  's2':
+    prefix: 't2'
+    body: 'More specific selector'

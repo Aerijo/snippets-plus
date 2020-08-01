@@ -2,3 +2,6 @@
   's1':
     prefix: 'p2-1'
     body: "Package 2, snippet 1"
+  's2':
+    prefix: 't2'
+    body: 'Less specific selector'
