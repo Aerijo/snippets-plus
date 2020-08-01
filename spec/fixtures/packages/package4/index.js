@@ -1,7 +1,5 @@
 module.exports = {
-  activate() {
-
-  },
+  activate() {},
 
   provideResolvers() {
     return {
@@ -13,7 +11,7 @@ module.exports = {
           } else if (name === "downcase") {
             return input.toUpperCase();
           }
-        }
+        },
       },
       variableResolver: {
         priority: 0,
@@ -21,8 +19,8 @@ module.exports = {
           if (name === "CLIPBOARD") {
             return "OVERRIDDEN";
           }
-        }
-      }
-    }
-  }
-}
+        },
+      },
+    };
+  },
+};
