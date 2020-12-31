@@ -70,6 +70,14 @@ describe("Expansions", () => {
     expect(gotoNext()).toBe(false);
   });
 
+  it("replaces leading tabs with the appropriate indent string", async () => {
+    editor = new TextEditor();
+    editor.setSoftTabs(true);
+    editor.setTabLength(2);
+    await expand("\t\t\tbar\n\tfoo", editor);
+    expect(editor.getText()).toBe("      bar\n  foo");
+  });
+
   it("inserts and selects the placeholder text", async () => {
     await expand("a${1:1}b${2:2}c${3:3}d${3:3}");
     let cursors = editor.getCursorsOrderedByBufferPosition();
