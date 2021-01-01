@@ -1,4 +1,4 @@
-name: Tests
+name: Lint
 
 on:
   push:
@@ -32,8 +32,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.3.2
       - name: Install
-        run: npm install
-      - name: Test
-        env:
-          ATOM_CHANNEL: ${{ matrix.channel }}
-        run: ./script/atom-ci-install
+        run: npm install prettier --no-save
+      - name: Lint
+        run: npm run lint-write
+      - name: Commit Fixes
+        if: "!github.event.release"
+        uses: EndBug/add-and-commit@a988073222b8bd50f3ecfca9c0ab7dfbf0d08ceb
+        with:
+          author_name: snippets-plus-lint-bot
+          message: "Fix lint issues"
